@@ -1,0 +1,19 @@
+[project]
+name = "klyrsignals"
+version = "0.1.0"
+description = "Net worth and investment analysis with AI-driven blind spot detection"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
