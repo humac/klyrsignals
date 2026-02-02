@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: klyrsignals-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-klyr_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_in_prod}
+      POSTGRES_DB: ${POSTGRES_DB:-klyrsignals}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - klyr-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U klyr_admin -d klyrsignals" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: klyrsignals-backend
+    volumes:
+      - ./backend:/app
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-klyr_admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_prod}
+      - POSTGRES_DB=${POSTGRES_DB:-klyrsignals}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - klyr-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build: ./frontend
+    container_name: klyrsignals-frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - klyr-network
+
+volumes:
+  postgres_data:
+
+
+networks:
+  klyr-network:
+    driver: bridge
