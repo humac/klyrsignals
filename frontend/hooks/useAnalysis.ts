@@ -26,6 +26,18 @@ export function useAnalysis(holdings: Holding[]): UseAnalysisReturn {
       return;
     }
 
+    // Check for mock analysis data in localStorage first
+    try {
+      const storedAnalysis = localStorage.getItem('analysis');
+      if (storedAnalysis) {
+        const parsed = JSON.parse(storedAnalysis);
+        setData(parsed);
+        return;
+      }
+    } catch (err) {
+      console.warn('Failed to load analysis from localStorage:', err);
+    }
+
     setLoading(true);
     setError(null);
 

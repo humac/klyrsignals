@@ -87,7 +87,12 @@ For adding holdings one at a time:
 
 After importing, you'll land on the Dashboard showing:
 
-![Dashboard Overview](screenshots/01-landing.png)
+![Dashboard with portfolio data](screenshots/01-dashboard.png)
+
+*The dashboard shows your complete portfolio at a glance:*
+- *Total Value: $171,900*
+- *Risk Score: 68 (Medium Risk)*
+- *8 holdings across different sectors*
 
 **Key Elements:**
 
@@ -98,6 +103,9 @@ After importing, you'll land on the Dashboard showing:
    - 🔴 70-100: High Risk
 3. **Holdings Count**: Number of positions in your portfolio
 4. **Warnings**: Active alerts about concentration risks or over-exposure
+
+**Notice:** The dashboard immediately highlights critical risks - in this example, Technology sector concentration (65.2%) and NVDA position (28.0%) are flagged as exceeding recommended maximums.
+
 5. **Quick Actions**: Shortcuts to common tasks
 
 ---
@@ -106,7 +114,9 @@ After importing, you'll land on the Dashboard showing:
 
 ### 1. Dashboard Overview
 
-![Dashboard](screenshots/01-landing.png)
+![Dashboard with portfolio metrics](screenshots/01-dashboard.png)
+
+*Dashboard showing a $171,900 portfolio with 8 positions and a risk score of 68.*
 
 The Dashboard is your portfolio command center, providing:
 
@@ -125,6 +135,8 @@ The risk score (0-100) is calculated based on:
 - Historical volatility of holdings
 
 **Lower scores indicate better diversification and lower risk.**
+
+**Pro tip:** The warnings section on the dashboard shows your most critical risks at a glance. In this example, notice how the Technology sector concentration (65.2%) and single-stock risk in NVDA (28.0%) are immediately visible, allowing you to prioritize rebalancing actions.
 
 ### 2. Portfolio Import
 
@@ -149,7 +161,9 @@ The Import page offers two methods:
 
 ### 3. Holdings Management
 
-![Holdings View](screenshots/03-holdings.png)
+![Holdings table with 8 stocks](screenshots/02-holdings.png)
+
+*Holdings page showing all 8 positions: AAPL, AMZN, GOOGL, JNJ, JPM, MSFT, NVDA, and XOM with quantities, prices, and market values.*
 
 View and manage all your portfolio positions:
 
@@ -166,41 +180,51 @@ View and manage all your portfolio positions:
 - Add new holdings
 - Export portfolio data
 
+**Pro tip:** Sort by any column to quickly identify your largest positions or best/worst performers. In this portfolio, notice that NVDA represents the largest holding at $70,024 (28% of portfolio), which triggers the concentration warning on the dashboard.
+
 ### 4. Portfolio Analysis
 
-![Analysis Page](screenshots/04-analysis.png)
+![Analysis page with risk score and allocation charts](screenshots/03-allocation.png)
+
+*Analysis page showing risk score breakdown (68/100), warnings, blind spots, recommendations, and allocation charts. Notice the 65.2% Technology sector allocation.*
 
 Deep dive into your portfolio composition:
 
 **Risk Score Visualization:**
 - Circular progress indicator
 - Color-coded risk level
-- Detailed breakdown on hover/click
+- Detailed breakdown showing Concentration (75), Volatility (62), and Correlation (68)
 
 **Asset Allocation:**
-- Pie chart showing distribution by asset class
-- Percentage breakdown
+- Bar chart showing distribution by asset class
+- Percentage breakdown (94.5% Equity, 5.5% Cash in this example)
 - Visual representation of diversification
 
 **Sector Breakdown:**
 - Bar chart of sector exposure
 - Identify over-concentrated sectors
-- Compare against benchmark allocations
+- Technology dominates at 65.2%, followed by Consumer Cyclical (12.8%) and Financial Services (9.5%)
 
 **Geographic Distribution:**
 - Regional allocation breakdown
 - Domestic vs. international exposure
-- Emerging markets percentage
+- This portfolio shows 100% North America exposure - a potential blind spot
+
+**Pro tip:** The risk breakdown reveals *why* your score is what it is. A high concentration score (75 in this case) suggests you should focus on diversification first before worrying about volatility or correlation.
 
 ### 5. Blind Spot Detection
+
+![Blind spots section showing 3 AI-detected risks](screenshots/03-allocation.png)
+
+*The Analysis page shows 3 blind spots: Growth-heavy portfolio (85% confidence), No emerging markets exposure (92% confidence), and High correlation between tech holdings (73% confidence).*
 
 KlyrSignals uses AI to identify hidden risks:
 
 **Common Blind Spots:**
 - **Concentration Risk**: Too much in single stock/sector
-- **Correlation Risk**: Holdings that move together
-- **Liquidity Risk**: Hard-to-sell positions
-- **Currency Risk**: Unhedged foreign exposure
+- **Correlation Risk**: Holdings that move together (e.g., AAPL, MSFT, GOOGL, NVDA all tech)
+- **Style Concentration**: Growth-heavy vs. value balance
+- **Geographic Concentration**: US-only or developed markets-only exposure
 
 **How AI Detects Them:**
 - Analyzes historical price correlations
@@ -208,45 +232,109 @@ KlyrSignals uses AI to identify hidden risks:
 - Identifies sector overlap across holdings
 - Flags unusual concentration patterns
 
+**In This Example:**
+1. **Growth-heavy portfolio** - Limited value exposure with 78% growth stocks
+2. **No emerging markets** - 0% allocation to emerging markets despite global opportunities
+3. **High tech correlation** - AAPL, MSFT, GOOGL, and NVDA tend to move together during market stress
+
 **Acting on Insights:**
 - Review each detected blind spot
 - Consider rebalancing recommendations
-- Diversify into underrepresented areas
+- Diversify into underrepresented areas (e.g., add VXUS for international exposure)
 - Reduce over-exposed positions
 
 ### 6. Over-Exposure Alerts
 
-![Settings](screenshots/05-settings.png)
+![Warnings section showing 2 critical alerts](screenshots/03-allocation.png)
 
-Configure alert thresholds and monitor exposures:
+*The Warnings section displays 2 critical alerts: Technology sector at 65.2% (vs 40% max) and NVDA at 28.0% (vs 10% max). Affected holdings are listed for each warning.*
+
+Over-exposure alerts warn you when your portfolio exceeds safe concentration limits:
 
 **Types of Over-Exposure:**
-- **Sector Over-Exposure**: >25% in single sector
-- **Geographic Concentration**: >40% in single region
-- **Asset Class Imbalance**: >50% in one asset class
-- **Single Stock Risk**: >10% in individual stock
+- **Sector Over-Exposure**: Technology at 65.2% far exceeds the recommended 40% maximum
+- **Single Stock Risk**: NVDA at 28.0% is nearly 3x the recommended 10% limit
+- **Geographic Concentration**: 100% North America exposure
+- **Asset Class Imbalance**: 94.5% in equities
 
 **Warning Thresholds:**
-- Customize sensitivity in Settings
 - Default thresholds follow modern portfolio theory
-- Adjust based on your risk tolerance
+- Critical warnings (red) indicate severe over-exposure
+- High warnings (orange) suggest attention needed
+
+**In This Example:**
+- Technology sector warning affects: AAPL, MSFT, GOOGL, NVDA
+- NVDA single-stock warning affects: NVDA only
 
 **Rebalancing Triggers:**
 - Alerts fire when thresholds are breached
 - Priority-ordered recommendations provided
-- Tax impact estimates included
+- See the Recommendations section below for specific actions
 
-### 7. Performance Tracking
+**Pro tip:** Address critical (red) warnings first. In this portfolio, reducing NVDA from 80 shares to 30 shares would eliminate both the single-stock warning and significantly reduce the technology sector concentration.
+
+### 7. Rebalancing Recommendations
+
+![Recommendations section with 3 priority actions](screenshots/03-allocation.png)
+
+*The Recommendations section shows 3 actionable trades: SELL 50 NVDA (Priority 1), BUY 100 VTI (Priority 2), and BUY 150 VXUS (Priority 3), each with expected impact.*
+
+KlyrSignals provides specific, actionable rebalancing recommendations:
+
+**Priority System:**
+- **Priority 1**: Critical actions to address severe risks
+- **Priority 2**: Important improvements for better diversification
+- **Priority 3**: Nice-to-have optimizations
+
+**In This Example:**
+
+1. **SELL 50 NVDA** (Priority 1)
+   - Reduces NVDA from 28% to ~10% of portfolio
+   - Estimated proceeds: ~$43,765
+   - Expected impact: Lower risk score by 15-20 points
+
+2. **BUY 100 VTI** (Priority 2)
+   - Adds broad U.S. market diversification
+   - Estimated cost: ~$24,500
+   - Reduces single-stock concentration risk
+
+3. **BUY 150 VXUS** (Priority 3)
+   - Adds international equity exposure
+   - Estimated cost: ~$13,500
+   - Addresses the "no emerging markets" blind spot
+
+**How to Execute:**
+- Review each recommendation carefully
+- Consider tax implications before selling
+- Execute trades through your brokerage account
+- Re-import updated holdings to see new risk score
+
+**Pro tip:** You don't need to execute all recommendations at once. Start with Priority 1 actions to address the most critical risks, then gradually work through the list as you have available funds.
+
+---
+
+### 8. Performance Tracking
 
 Monitor your portfolio's performance over time:
 
 **Returns Calculation:**
-- Time-weighted returns
-- Dollar-weighted returns (IRR)
-- Since-inception performance
+- Total return since inception
+- Day's performance (visible on dashboard)
+- Year-to-date (YTD) returns
+
+**Dashboard Performance Metrics:**
+- **Total Value**: Current portfolio worth
+- **Day Change**: Dollar and percentage change today
+- **Risk Score Trend**: Track if your risk is improving over time
+
+**In This Example:**
+- Portfolio shows +$48,750 (+24.38%) total return
+- YTD return: +8.45%
+- Day's change: +$2,150 (+0.87%)
 
 **Benchmark Comparison:**
 - Compare against S&P 500, total market, or custom benchmarks
+- See if your active picks are beating passive alternatives
 - See alpha (outperformance) or beta (volatility vs. market)
 - Risk-adjusted returns (Sharpe ratio)
 

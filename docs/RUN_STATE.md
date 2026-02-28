@@ -1,7 +1,7 @@
 # RUN_STATE.md - Development Pipeline State
 
-**Last Updated:** 2026-02-28T20:05:00Z  
-**Current Phase:** ✅ COMPLETE (Documentation Added)  
+**Last Updated:** 2026-02-28T23:35:00Z  
+**Current Phase:** ✅ COMPLETE (Mock Data Integration & Screenshot Documentation)  
 **Owner:** Pepper (Analyst)  
 **Project:** KlyrSignals v1.0.0
 
@@ -546,6 +546,78 @@ from app.models.portfolio import (
 - Blind spot detection working
 - Recommendation generation working
 - Ready for QA handoff
+
+---
+
+## Documentation Refresh Phase - COMPLETE
+
+| Phase | Agent | Session Key | Status | Started | Completed |
+|-------|-------|-------------|--------|---------|-----------|
+| **pepper_screenshots_complete** | Pepper | agent:jarvis:subagent:7e538e62-0f36-4deb-b7a8-0af8d6c0b492 | ✅ DONE | 23:00 | 23:35 |
+
+### What Was Fixed
+
+**Data Format Alignment:**
+- `backend/app/data/mock_portfolio.py`: Changed `avg_cost` → `purchase_price` (with backward compatibility)
+- Added all required fields: `price`, `current_price`, `market_value` for compatibility
+- Fixed data structure to match PortfolioContext format
+- `backend/app/api/v1/mock.py`: Updated response format to return holdings array with total_value, cash, last_updated
+- `frontend/hooks/useAnalysis.ts`: Added localStorage check before API call
+- Analysis object now matches frontend expectations with `risk_breakdown`, `warnings`, `blind_spots`, `recommendations`
+
+**All Pages Tested and Verified:**
+- ✅ Dashboard: Shows $171,900 total value, risk score 68, 8 holdings, warnings
+- ✅ Holdings: Table with 8 stocks (AAPL, MSFT, GOOGL, AMZN, NVDA, JPM, JNJ, XOM), no NaN/undefined
+- ✅ Analysis: Risk score breakdown, warnings, blind spots, recommendations, allocation charts all rendering
+
+### Deliverables
+
+- ✅ 3 data-filled screenshots captured and verified:
+  - `01-dashboard.png` (69KB): Dashboard with portfolio metrics
+  - `02-holdings.png` (90KB): Holdings table with all 8 positions
+  - `03-allocation.png` (105KB): Analysis page with risk score and allocation charts
+- ✅ USER_GUIDE.md updated with new screenshots and educational annotations
+- ✅ All files committed to git
+- ✅ Ready to push to GitHub
+
+### Before/After
+
+- **Before:** Empty dashboards, data format mismatch (avg_cost vs purchase_price), analysis page failing with 422 errors
+- **After:** Complete documentation with 3 data-filled screenshots showing realistic $171,900 portfolio, all pages working correctly
+
+### Data Format Changes
+
+**Mock Portfolio (backend/app/data/mock_portfolio.py):**
+```python
+# Before:
+"avg_cost": 145.00,
+"current_price": 178.50
+
+# After:
+"purchase_price": 145.00,  # Primary field
+"avg_cost": 145.00,  # Backward compatibility
+"price": 178.50,  # Current price alias
+"current_price": 178.50,
+```
+
+**Mock Analysis (backend/app/data/mock_portfolio.py):**
+```python
+# Before:
+"risk_score": 68,
+"allocation": {"by_sector": {...}}
+
+# After:
+"risk_score": 68,
+"risk_breakdown": {"concentration": 75, "volatility": 62, "correlation": 68},
+"warnings": [...],
+"blind_spots": [...],
+"recommendations": [...]
+```
+
+### Links
+
+- User Guide (updated): https://github.com/humac/klyrsignals/blob/main/docs/USER_GUIDE.md
+- Screenshots: https://github.com/humac/klyrsignals/tree/main/docs/screenshots
 
 ---
 

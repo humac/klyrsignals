@@ -19,11 +19,27 @@ export default function DashboardPage() {
         },
       });
       const data = await response.json();
+      
+      // Match PortfolioContext.tsx expected format
       localStorage.setItem('klyrsignals_portfolio', JSON.stringify({
-        holdings: data.portfolio.holdings,
+        holdings: data.portfolio.holdings.map(h => ({
+          symbol: h.symbol,
+          name: h.name,
+          quantity: h.quantity,
+          purchase_price: h.purchase_price || h.avg_cost,
+          current_price: h.current_price || h.price,
+          market_value: h.market_value || (h.quantity * (h.purchase_price || h.avg_cost)),
+          weight: h.weight,
+          sector: h.sector,
+          asset_class: h.asset_class,
+          geography: h.geography
+        })),
         lastUpdated: new Date().toISOString()
       }));
+      
+      // Store analysis separately
       localStorage.setItem('analysis', JSON.stringify(data.analysis));
+      
       window.location.reload();
     } catch (err) {
       console.error('Failed to load demo data:', err);

@@ -25,8 +25,15 @@ async def get_mock_analysis():
 @router.post("/load")
 async def load_mock_data():
     """Load mock data into localStorage (returns data for frontend to store)"""
+    from datetime import datetime
+    
     return {
-        "portfolio": MOCK_PORTFOLIO,
+        "portfolio": {
+            "holdings": MOCK_PORTFOLIO["holdings"],
+            "total_value": MOCK_PORTFOLIO["total_value"],
+            "cash": MOCK_PORTFOLIO["cash"],
+            "last_updated": datetime.utcnow().isoformat() + "Z"
+        },
         "analysis": MOCK_ANALYSIS,
         "message": "Mock data loaded successfully"
     }
