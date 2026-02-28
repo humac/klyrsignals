@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
-from app.api.v1 import portfolio, analysis, market, health
+from app.api.v1 import portfolio, analysis, market, health, mock
 
 # Create FastAPI app
 app = FastAPI(
@@ -35,6 +35,7 @@ app.include_router(portfolio.router)
 app.include_router(analysis.router)
 app.include_router(market.router)
 app.include_router(health.router)
+app.include_router(mock.router, prefix="/api/v1/mock", tags=["mock"])
 
 
 @app.get("/")

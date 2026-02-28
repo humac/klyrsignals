@@ -120,10 +120,10 @@ export default function HoldingsPage() {
                     {holding.quantity}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    ${holding.purchase_price.toFixed(2)}
+                    ${(holding.avg_cost || holding.purchase_price || 0).toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
-                    ${(holding.quantity * holding.purchase_price).toFixed(2)}
+                    ${(holding.quantity * (holding.avg_cost || holding.purchase_price || 0)).toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500 capitalize">
                     {holding.asset_class}

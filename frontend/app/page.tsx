@@ -3,10 +3,33 @@
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { useAnalysis } from '@/hooks/useAnalysis';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export default function DashboardPage() {
-  const { holdings, totalValue, lastUpdated } = usePortfolio();
+  const searchParams = useSearchParams();
+  const { holdings, totalValue, lastUpdated, importHoldings } = usePortfolio();
   const { data: analysis, loading, error } = useAnalysis(holdings);
+
+  const loadDemoData = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/mock/load', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      localStorage.setItem('klyrsignals_portfolio', JSON.stringify({
+        holdings: data.portfolio.holdings,
+        lastUpdated: new Date().toISOString()
+      }));
+      localStorage.setItem('analysis', JSON.stringify(data.analysis));
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to load demo data:', err);
+      alert('Failed to load demo data. Make sure backend is running.');
+    }
+  };
 
   if (holdings.length === 0) {
     return (
@@ -16,12 +39,25 @@ export default function DashboardPage() {
           <p className="text-gray-600 mb-8">
             AI-powered portfolio analysis to detect blind spots and over-exposure risks.
           </p>
-          <Link
-            href="/import"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-          >
-            Import Your Portfolio
-          </Link>
+          <div className="space-y-4">
+            <Link
+              href="/import"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+            >
+              Import Your Portfolio
+            </Link>
+            {searchParams.get('demo') === 'true' && (
+              <div>
+                <button
+                  onClick={loadDemoData}
+                  className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition"
+                >
+                  📊 Load Demo Data
+                </button>
+                <p className="text-sm text-gray-500 mt-2">Load a $250k demo portfolio for testing</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
