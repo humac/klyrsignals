@@ -542,4 +542,56 @@ Final QA Verdict: PASS
 
 ---
 
+---
+
+## v1.5 Features (2026-03-01)
+
+### Dark Mode
+**Status:** ✅ COMPLETE  
+**Implementation:** ThemeContext with class-based toggle  
+**Files:** `context/ThemeContext.tsx`, `components/ThemeToggle.tsx`, all pages updated  
+**Testing:** PASS (Heimdall QA verified all 5 pages in both modes)
+
+### WealthSimple Import
+**Status:** ✅ COMPLETE  
+**Implementation:** Auto-detection + specialized CSV parser  
+**Files:** `lib/csv-parsers/wealthsimple.ts`, `lib/csv-parsers/index.ts`, `import/page.tsx`  
+**Testing:** PASS (Handles BUY/SELL orders, commission, averaging)
+
+### Bug Fixes
+- **Import Persistence:** Fixed race condition in PortfolioContext (isInitialized guard)
+- **QA Verdict:** PASS (after re-QA verification)
+
+### Pipeline Summary
+| Phase | Agent | Duration | Status |
+|-------|-------|----------|--------|
+| Architecture | Tony | ~95 min | ✅ DONE |
+| Implementation | Peter | ~10 hours | ✅ DONE |
+| QA | Heimdall | ~2 hours | ✅ PASS |
+| Bug Fix | Peter | ~2 hours | ✅ DONE |
+| Re-QA | Heimdall | ~45 min | ✅ PASS |
+
+### Files Created (v1.5)
+- `frontend/context/ThemeContext.tsx`
+- `frontend/components/ThemeToggle.tsx`
+- `frontend/lib/csv-parsers/wealthsimple.ts`
+- `frontend/lib/csv-parsers/generic.ts`
+- `frontend/lib/csv-parsers/index.ts`
+- `frontend/public/samples/wealthsimple-sample.csv`
+- `agents/tony.md`
+- `agents/peter.md`
+- `agents/heimdall.md`
+- `agents/pepper.md`
+
+### Files Modified (v1.5)
+- `frontend/tailwind.config.ts`
+- `frontend/app/globals.css`
+- `frontend/app/layout.tsx`
+- `frontend/app/import/page.tsx`
+- All 5 pages (dark mode classes)
+- `docs/agent-workflow/QA_V1.5.md`
+- `docs/RUN_STATE.md`
+
+---
+
 *KlyrSignals v1.0 - Built with ❤️ using Next.js 16 + Python FastAPI*

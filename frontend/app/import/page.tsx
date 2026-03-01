@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { Holding } from '@/types/portfolio';
 import { useRouter } from 'next/navigation';
+import { detectCSVFormat, parseGenericCSV, parseWealthSimpleCSV } from '@/lib/csv-parsers';
 
 export default function ImportPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function ImportPage() {
   const [parsedHoldings, setParsedHoldings] = useState<Holding[]>([]);
   const [csvText, setCsvText] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [detectedFormat, setDetectedFormat] = useState<string | null>(null);
 
   // Manual entry form
   const [manualHolding, setManualHolding] = useState<Partial<Holding>>({
@@ -72,7 +74,22 @@ export default function ImportPage() {
 
   const handlePreview = () => {
     try {
-      const holdings = parseCSV(csvText);
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+      
+      // Auto-detect format
+      const format = detectCSVFormat(headers);
+      
+      // Parse with appropriate parser
+      let holdings;
+      if (format === 'wealthsimple') {
+        holdings = parseWealthSimpleCSV(csvText);
+        setDetectedFormat('WealthSimple');
+      } else {
+        holdings = parseGenericCSV(csvText);
+        setDetectedFormat('Generic');
+      }
+
       setParsedHoldings(holdings);
       setStep('preview');
     } catch (err) {
@@ -100,17 +117,22 @@ export default function ImportPage() {
   };
 
   const handleImport = () => {
-    importHoldings(parsedHoldings);
-    setStep('confirm');
+    try {
+      importHoldings(parsedHoldings);
+      setStep('confirm');
+    } catch (error) {
+      console.error('[Import] Failed:', error);
+      setError('Import failed: ' + (error as Error).message);
+    }
   };
 
   if (step === 'confirm') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center p-4">
         <div className="text-center">
           <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Portfolio Imported!</h1>
-          <p className="text-gray-600 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text mb-4">Portfolio Imported!</h1>
+          <p className="text-gray-600 dark:text-dark-muted mb-8">
             Successfully imported {parsedHoldings.length} holding{parsedHoldings.length !== 1 ? 's' : ''}.
           </p>
           <button
@@ -125,12 +147,12 @@ export default function ImportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Import Portfolio</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text mb-8">Import Portfolio</h1>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200">
             {error}
           </div>
         )}
@@ -138,16 +160,16 @@ export default function ImportPage() {
         {step === 'upload' && (
           <div className="space-y-8">
             {/* CSV Import */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">CSV Import</h2>
-              <p className="text-gray-600 mb-4">
+            <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 border border-gray-200 dark:border-dark-border">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text mb-4">CSV Import</h2>
+              <p className="text-gray-600 dark:text-dark-muted mb-4">
                 Paste your CSV data below. Expected format: symbol, quantity, purchase_price
               </p>
               <textarea
                 value={csvText}
                 onChange={handleCSVUpload}
                 placeholder="symbol,quantity,purchase_price,purchase_date&#10;AAPL,50,150.00,2024-01-15&#10;MSFT,30,280.00,2024-02-20"
-                className="w-full h-48 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full h-48 p-4 border border-gray-300 dark:border-dark-border rounded-lg font-mono text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <button
                 onClick={handlePreview}
@@ -159,55 +181,55 @@ export default function ImportPage() {
             </div>
 
             {/* Manual Entry */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Manual Entry</h2>
+            <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 border border-gray-200 dark:border-dark-border">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text mb-4">Manual Entry</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Symbol *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">Symbol *</label>
                   <input
                     type="text"
                     value={manualHolding.symbol || ''}
                     onChange={(e) => setManualHolding({ ...manualHolding, symbol: e.target.value })}
                     placeholder="AAPL"
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">Quantity *</label>
                   <input
                     type="number"
                     value={manualHolding.quantity || ''}
                     onChange={(e) => setManualHolding({ ...manualHolding, quantity: parseFloat(e.target.value) || 0 })}
                     placeholder="50"
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Price *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">Purchase Price *</label>
                   <input
                     type="number"
                     step="0.01"
                     value={manualHolding.purchase_price || ''}
                     onChange={(e) => setManualHolding({ ...manualHolding, purchase_price: parseFloat(e.target.value) || 0 })}
                     placeholder="150.00"
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">Purchase Date</label>
                   <input
                     type="date"
                     value={manualHolding.purchase_date || ''}
                     onChange={(e) => setManualHolding({ ...manualHolding, purchase_date: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Asset Class</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">Asset Class</label>
                   <select
                     value={manualHolding.asset_class || 'stock'}
                     onChange={(e) => setManualHolding({ ...manualHolding, asset_class: e.target.value as any })}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="stock">Stock</option>
                     <option value="etf">ETF</option>
@@ -227,30 +249,38 @@ export default function ImportPage() {
         )}
 
         {step === 'preview' && (
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Preview</h2>
-            <p className="text-gray-600 mb-4">Review your holdings before importing:</p>
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 border border-gray-200 dark:border-dark-border">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text mb-4">Preview</h2>
+            <p className="text-gray-600 dark:text-dark-muted mb-4">Review your holdings before importing:</p>
+            
+            {detectedFormat && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  ✓ Detected format: <strong>{detectedFormat}</strong>
+                </p>
+              </div>
+            )}
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-border">
+                <thead className="bg-gray-50 dark:bg-dark-surface">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Class</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-muted uppercase tracking-wider">Symbol</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-muted uppercase tracking-wider">Quantity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-muted uppercase tracking-wider">Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-muted uppercase tracking-wider">Value</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-muted uppercase tracking-wider">Asset Class</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-dark-surface divide-y divide-gray-200 dark:divide-dark-border">
                   {parsedHoldings.map((holding, idx) => (
                     <tr key={idx}>
-                      <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{holding.symbol}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">{holding.quantity}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">${holding.purchase_price.toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900 dark:text-dark-text">{holding.symbol}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-dark-muted">{holding.quantity}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-dark-muted">${holding.purchase_price.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-dark-muted">
                         ${(holding.quantity * holding.purchase_price).toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500 capitalize">{holding.asset_class}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-dark-muted capitalize">{holding.asset_class}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -259,7 +289,7 @@ export default function ImportPage() {
             <div className="mt-6 flex space-x-4">
               <button
                 onClick={() => setStep('upload')}
-                className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-300 transition"
+                className="bg-gray-200 dark:bg-dark-surface text-gray-800 dark:text-dark-text px-6 py-2 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-dark-border transition"
               >
                 Back
               </button>

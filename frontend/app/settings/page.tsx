@@ -34,17 +34,17 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text mb-8">Settings</h1>
 
         {/* Data Management */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Data Management</h2>
+        <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 mb-8 border border-gray-200 dark:border-dark-border">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text mb-4">Data Management</h2>
           
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-600 mb-2">Current Holdings: {holdings.length}</p>
+              <p className="text-sm text-gray-600 dark:text-dark-muted mb-2">Current Holdings: {holdings.length}</p>
               <button
                 onClick={handleExport}
                 disabled={holdings.length === 0}
@@ -55,20 +55,20 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 mb-2">Clear all portfolio data</p>
+              <p className="text-sm text-gray-600 dark:text-dark-muted mb-2">Clear all portfolio data</p>
               <button
                 onClick={handleClear}
                 disabled={holdings.length === 0}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   showConfirm
                     ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-red-100 text-red-700 hover:bg-red-200'
+                    : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-900/30'
                 } disabled:bg-gray-400 disabled:cursor-not-allowed`}
               >
                 {showConfirm ? 'Click again to confirm' : 'Clear Portfolio'}
               </button>
               {showConfirm && (
-                <p className="text-sm text-red-600 mt-2">
+                <p className="text-sm text-red-600 dark:text-red-200 mt-2">
                   This action cannot be undone. All holdings will be permanently deleted.
                 </p>
               )}
@@ -77,9 +77,9 @@ export default function SettingsPage() {
         </div>
 
         {/* About */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">About KlyrSignals</h2>
-          <div className="space-y-2 text-sm text-gray-600">
+        <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 mb-8 border border-gray-200 dark:border-dark-border">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text mb-4">About KlyrSignals</h2>
+          <div className="space-y-2 text-sm text-gray-600 dark:text-dark-muted">
             <p><strong>Version:</strong> 1.0.0</p>
             <p><strong>Build:</strong> 2026-02-28</p>
             <p>
@@ -90,9 +90,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Disclaimer */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-yellow-900 mb-3">⚠️ Investment Disclaimer</h2>
-          <p className="text-sm text-yellow-800 leading-relaxed">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-3">⚠️ Investment Disclaimer</h2>
+          <p className="text-sm text-yellow-800 dark:text-yellow-200 leading-relaxed">
             KlyrSignals provides portfolio analysis and insights only. We are not a registered 
             investment advisor. The information provided should not be considered as investment 
             advice or a recommendation to buy or sell any security. All investments involve risk, 

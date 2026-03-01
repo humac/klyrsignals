@@ -22,7 +22,7 @@ export default function DashboardPage() {
       
       // Match PortfolioContext.tsx expected format
       localStorage.setItem('klyrsignals_portfolio', JSON.stringify({
-        holdings: data.portfolio.holdings.map(h => ({
+        holdings: data.portfolio.holdings.map((h: any) => ({
           symbol: h.symbol,
           name: h.name,
           quantity: h.quantity,
@@ -49,10 +49,10 @@ export default function DashboardPage() {
 
   if (holdings.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to KlyrSignals</h1>
-          <p className="text-gray-600 mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-dark-text mb-4">Welcome to KlyrSignals</h1>
+          <p className="text-gray-600 dark:text-dark-muted mb-8">
             AI-powered portfolio analysis to detect blind spots and over-exposure risks.
           </p>
           <div className="space-y-4">
@@ -70,7 +70,7 @@ export default function DashboardPage() {
                 >
                   📊 Load Demo Data
                 </button>
-                <p className="text-sm text-gray-500 mt-2">Load a $250k demo portfolio for testing</p>
+                <p className="text-sm text-gray-500 dark:text-dark-muted mt-2">Load a $250k demo portfolio for testing</p>
               </div>
             )}
           </div>
@@ -80,12 +80,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text">Dashboard</h1>
+          <p className="text-gray-600 dark:text-dark-muted mt-1">
             {lastUpdated ? `Last updated: ${lastUpdated.toLocaleString()}` : 'No recent updates'}
           </p>
         </div>
@@ -93,18 +93,18 @@ export default function DashboardPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Total Value */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">Total Value</h2>
-            <p className="text-3xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 border border-gray-200 dark:border-dark-border">
+            <h2 className="text-sm font-medium text-gray-600 dark:text-dark-muted mb-2">Total Value</h2>
+            <p className="text-3xl font-bold text-gray-900 dark:text-dark-text">
               ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
 
           {/* Risk Score */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">Risk Score</h2>
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 border border-gray-200 dark:border-dark-border">
+            <h2 className="text-sm font-medium text-gray-600 dark:text-dark-muted mb-2">Risk Score</h2>
             {loading ? (
-              <p className="text-3xl font-bold text-gray-400">Loading...</p>
+              <p className="text-3xl font-bold text-gray-400 dark:text-dark-muted">Loading...</p>
             ) : error ? (
               <p className="text-3xl font-bold text-red-500">Error</p>
             ) : analysis ? (
@@ -115,41 +115,41 @@ export default function DashboardPage() {
                 }`}>
                   {analysis.risk_score}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-dark-muted mt-1">
                   {analysis.risk_score < 40 ? 'Low Risk' :
                    analysis.risk_score < 70 ? 'Medium Risk' : 'High Risk'}
                 </p>
               </div>
             ) : (
-              <p className="text-3xl font-bold text-gray-400">N/A</p>
+              <p className="text-3xl font-bold text-gray-400 dark:text-dark-muted">N/A</p>
             )}
           </div>
 
           {/* Holdings Count */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">Holdings</h2>
-            <p className="text-3xl font-bold text-gray-900">{holdings.length}</p>
-            <p className="text-sm text-gray-500 mt-1">positions</p>
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 border border-gray-200 dark:border-dark-border">
+            <h2 className="text-sm font-medium text-gray-600 dark:text-dark-muted mb-2">Holdings</h2>
+            <p className="text-3xl font-bold text-gray-900 dark:text-dark-text">{holdings.length}</p>
+            <p className="text-sm text-gray-500 dark:text-dark-muted mt-1">positions</p>
           </div>
         </div>
 
         {/* Warnings */}
         {analysis && analysis.warnings.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Warnings</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text mb-4">Warnings</h2>
             <div className="space-y-3">
               {analysis.warnings.map((warning, idx) => (
                 <div
                   key={idx}
                   className={`p-4 rounded-lg border-l-4 ${
-                    warning.severity === 'critical' ? 'bg-red-50 border-red-500' :
-                    warning.severity === 'high' ? 'bg-orange-50 border-orange-500' :
-                    'bg-yellow-50 border-yellow-500'
+                    warning.severity === 'critical' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
+                    warning.severity === 'high' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500' :
+                    'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
                   }`}
                 >
                   <p className={`font-medium ${
-                    warning.severity === 'critical' ? 'text-red-800' :
-                    warning.severity === 'high' ? 'text-orange-800' : 'text-yellow-800'
+                    warning.severity === 'critical' ? 'text-red-800 dark:text-red-200' :
+                    warning.severity === 'high' ? 'text-orange-800 dark:text-orange-200' : 'text-yellow-800 dark:text-yellow-200'
                   }`}>
                     {warning.message}
                   </p>
@@ -163,24 +163,24 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/import"
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition text-center"
+            className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 hover:shadow-md transition text-center border border-gray-200 dark:border-dark-border"
           >
-            <h3 className="font-semibold text-gray-900">Add Holdings</h3>
-            <p className="text-sm text-gray-600 mt-1">Import or manually add</p>
+            <h3 className="font-semibold text-gray-900 dark:text-dark-text">Add Holdings</h3>
+            <p className="text-sm text-gray-600 dark:text-dark-muted mt-1">Import or manually add</p>
           </Link>
           <Link
             href="/holdings"
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition text-center"
+            className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 hover:shadow-md transition text-center border border-gray-200 dark:border-dark-border"
           >
-            <h3 className="font-semibold text-gray-900">View All</h3>
-            <p className="text-sm text-gray-600 mt-1">Manage positions</p>
+            <h3 className="font-semibold text-gray-900 dark:text-dark-text">View All</h3>
+            <p className="text-sm text-gray-600 dark:text-dark-muted mt-1">Manage positions</p>
           </Link>
           <Link
             href="/analysis"
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition text-center"
+            className="bg-white dark:bg-dark-surface rounded-xl shadow-sm p-6 hover:shadow-md transition text-center border border-gray-200 dark:border-dark-border"
           >
-            <h3 className="font-semibold text-gray-900">Full Analysis</h3>
-            <p className="text-sm text-gray-600 mt-1">Deep dive insights</p>
+            <h3 className="font-semibold text-gray-900 dark:text-dark-text">Full Analysis</h3>
+            <p className="text-sm text-gray-600 dark:text-dark-muted mt-1">Deep dive insights</p>
           </Link>
         </div>
       </div>

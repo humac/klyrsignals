@@ -493,6 +493,113 @@ If issues persist:
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-02-28  
+---
+
+## Dark Mode
+
+KlyrSignals supports both light and dark themes for comfortable viewing in any lighting condition.
+
+### Toggle Theme
+
+1. Click the sun/moon icon in the top-right corner of the navigation bar
+2. Theme preference is saved automatically to your browser
+3. Reloads will remember your choice
+
+### System Preference
+
+KlyrSignals automatically detects your OS theme setting on first visit:
+- If your system is in dark mode, KlyrSignals will start in dark mode
+- If your system is in light mode, KlyrSignals will start in light mode
+- You can always override this by clicking the theme toggle
+
+### What Changes in Dark Mode
+
+- **Background**: Dark slate colors (#0f172a) instead of light gray
+- **Cards/Surfaces**: Dark slate (#1e293b) instead of white
+- **Text**: Light text (#f1f5f9) instead of dark text
+- **Borders**: Subtle dark borders for better contrast
+- **Warnings/Alerts**: Darker background variants with adjusted text colors
+
+All pages, charts, tables, and components are fully styled for dark mode.
+
+---
+
+## WealthSimple Import
+
+KlyrSignals automatically detects and parses WealthSimple CSV exports, making it easy to import your portfolio from WealthSimple Trade.
+
+### How to Import
+
+1. **Export from WealthSimple**:
+   - Log into WealthSimple Trade
+   - Go to your account activity or trade history
+   - Export as CSV
+
+2. **Import to KlyrSignals**:
+   - Go to the Import page
+   - Upload your CSV file or paste the contents
+   - KlyrSignals will auto-detect the format
+   - Preview your holdings
+   - Click "Import"
+
+### Auto-Detection
+
+KlyrSignals automatically detects WealthSimple CSV format by looking for these columns:
+- Trade Date
+- Commission
+- Action (BUY/SELL)
+
+When detected, you'll see a blue banner confirming "Detected format: WealthSimple"
+
+### Supported Data
+
+**WealthSimple parser handles:**
+- ✅ BUY orders (adds holdings to your portfolio)
+- ✅ SELL orders (reduces or removes holdings)
+- ✅ Commission included in cost basis calculation
+- ✅ Multiple trades for same symbol (automatically averaged)
+- ✅ Partial SELL orders (reduces quantity without removing)
+
+**Cost Basis Calculation:**
+- For BUY orders: Includes commission in the purchase price
+- For multiple purchases: Calculates weighted average cost
+- Formula: `(quantity × price + commission) / quantity`
+
+### Example WealthSimple CSV
+
+```csv
+Trade Date,Symbol,Description,Quantity,Price,Commission,Net Amount,Action,Balance
+2024-01-15,AAPL,APPLE INC,10,185.50,1.00,1856.00,BUY,10
+2024-01-20,MSFT,MICROSOFT CORP,5,380.00,1.00,1901.00,BUY,5
+2024-02-01,GOOGL,ALPHABET INC CLASS A,8,142.50,1.00,1141.00,BUY,8
+2024-02-15,NVDA,NVIDIA CORPORATION,12,720.00,1.00,8641.00,BUY,12
+```
+
+### Sample File
+
+A sample WealthSimple CSV is included at `/samples/wealthsimple-sample.csv` for testing.
+
+### Edge Cases Handled
+
+**Multiple BUY Orders:**
+If you buy the same stock multiple times, KlyrSignals calculates the average cost:
+```
+Buy 10 AAPL @ $185.50 + $1.00 commission = $185.60/share
+Buy 5 AAPL @ $190.00 + $1.00 commission = $190.20/share
+Result: 15 AAPL @ $187.00/share (weighted average)
+```
+
+**SELL Orders:**
+- SELL reduces your holding quantity
+- If you sell more than you own, quantity goes to 0 (holding removed)
+- SELL orders don't affect average cost of remaining shares
+
+**Invalid Data:**
+- Rows with missing symbols or zero quantity are skipped
+- If format can't be detected, falls back to generic CSV parser
+
+---
+
+**Version:** 1.5.0  
+**Last Updated:** 2026-03-01  
 **License:** MIT

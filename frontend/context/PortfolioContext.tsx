@@ -27,8 +27,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [totalValue, setTotalValue] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount (only once)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -38,21 +39,25 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         setLastUpdated(parsed.lastUpdated ? new Date(parsed.lastUpdated) : null);
       }
     } catch (error) {
-      console.error('Failed to load portfolio from localStorage:', error);
+      console.error('[PortfolioContext] Failed to load portfolio from localStorage:', error);
+    } finally {
+      setIsInitialized(true);
     }
   }, []);
 
-  // Save to localStorage on changes
+  // Save to localStorage on changes (only after initialization)
   useEffect(() => {
+    if (!isInitialized) return;
+    
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         holdings,
         lastUpdated: lastUpdated?.toISOString(),
       }));
     } catch (error) {
-      console.error('Failed to save portfolio to localStorage:', error);
+      console.error('[PortfolioContext] Failed to save portfolio to localStorage:', error);
     }
-  }, [holdings, lastUpdated]);
+  }, [holdings, lastUpdated, isInitialized]);
 
   // Calculate total value
   useEffect(() => {
@@ -87,7 +92,18 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const importHoldings = useCallback((newHoldings: Holding[]) => {
-    setHoldings(newHoldings);
+    if (!newHoldings || newHoldings.length === 0) {
+      console.warn('[PortfolioContext] No holdings to import');
+      return;
+    }
+    
+    setHoldings(prev => {
+      // Merge with existing holdings (avoid duplicates by symbol)
+      const existingSymbols = new Set(prev.map(h => h.symbol));
+      const uniqueNewHoldings = newHoldings.filter(h => !existingSymbols.has(h.symbol));
+      return [...prev, ...uniqueNewHoldings];
+    });
+    
     setLastUpdated(new Date());
   }, []);
 

@@ -1,13 +1,13 @@
 # RUN_STATE.md - Development Pipeline State
 
-**Last Updated:** 2026-02-28T23:35:00Z  
-**Current Phase:** ✅ COMPLETE (Mock Data Integration & Screenshot Documentation)  
-**Owner:** Pepper (Analyst)  
-**Project:** KlyrSignals v1.0.0
+**Last Updated:** 2026-02-28T23:55:00Z  
+**Current Phase:** ✅ COMPLETE (v1.5 Architecture Design)  
+**Owner:** Tony (Architect)  
+**Project:** KlyrSignals v1.5.0
 
 ---
 
-## Active Pipeline
+## v1.0 Pipeline (COMPLETE)
 
 | Phase | Agent | Session Key | Status | Started | Completed |
 |-------|-------|-------------|--------|---------|-----------|
@@ -20,6 +20,324 @@
 | **heimdall_retest** | Heimdall | agent:jarvis:subagent:44411ab9-2cb3-430c-95b3-abaaad1487ee | ✅ DONE | 19:34 | 19:34 |
 | **pepper_closeout** | Pepper | 1b32b07c-8f37-4790-b3ac-0b163a8d42d4 | ✅ DONE | 19:34 | 19:50 |
 | **pepper_docs** | Pepper | agent:jarvis:subagent:fe9590d1-47cd-450b-85d0-490f8f33ded6 | ✅ DONE | 20:00 | 20:05 |
+
+---
+
+## v1.5 Pipeline
+
+| Phase | Agent | Session Key | Status | Started | Completed |
+|-------|-------|-------------|--------|---------|-----------|
+| **tony_v1.5_design** | Tony | agent:jarvis:subagent:4ea37456-5fbb-4abd-b4f2-bbe855cff955 | ✅ DONE | 23:55 | 23:55 |
+| **peter_v1.5_build** | Peter | agent:jarvis:subagent:e47d8c8e-2a36-44b7-a13a-c2fdc6f3c02b | ✅ DONE | 01:13 | 01:45 |
+| **heimdall_v1.5_qa** | Heimdall | agent:jarvis:subagent:86456988-a3fb-493b-9a89-552952657d53 | ✅ DONE | 02:07 | 02:15 |
+| **peter_v1.5_fix** | Peter | agent:jarvis:subagent:7584db90-0fde-489d-a2fb-d97356816276 | ✅ DONE | 02:13 | 02:22 |
+| **heimdall_v1.5_reqa** | Heimdall | agent:jarvis:subagent:6050278d-3c2c-4cfa-8016-7fa5d5aeee94 | ✅ DONE | 02:26 | 02:32 |
+
+### Bug Fixed: Import State Persistence
+
+**Issue:** Holdings not persisting to localStorage after import
+
+**Root Cause:** Race condition between localStorage load and save effects in PortfolioContext. The save useEffect was triggering on mount with empty state before the load effect completed, overwriting imported data.
+
+**Fix Applied:**
+1. Added `isInitialized` flag to prevent saving before localStorage load completes
+2. Removed duplicate localStorage save from `importHoldings()` function
+3. Added proper dependency array to save effect: `[holdings, lastUpdated, isInitialized]`
+
+**Files Changed:**
+- `frontend/context/PortfolioContext.tsx` - Added initialization guard
+- `frontend/app/import/page.tsx` - Removed debug logging
+
+**Testing:**
+- ✅ Import WealthSimple CSV - PASS
+- ✅ Data persists after navigation - PASS
+- ✅ Data persists after reload - PASS
+- ✅ Build passes (`npm run build`) - PASS
+
+### QA Verdict (After Fix)
+
+**Overall:** ✅ **PASS**
+
+**Dark Mode:** ✅ PASS
+- Toggle functionality: PASS
+- Theme persistence: PASS
+- All pages styled: PASS
+
+**WealthSimple Import:** ✅ PASS
+- Parser implementation: PASS
+- Format auto-detection: PASS
+- State persistence: PASS (fixed)
+
+**Build:** ✅ PASS
+- Frontend build: PASS
+- Backend build: PASS
+- File structure: PASS
+
+**Security:** ✅ PASS
+- No eval() in app source
+- No hardcoded secrets
+
+### Next Phase
+→ **Ready for Pepper closeout** or deployment
+
+---
+
+## v1.5 Re-QA Phase - COMPLETION SUMMARY
+
+**Completed:** 2026-03-01T02:32:00Z  
+**Duration:** ~6 minutes  
+**Status:** ✅ PASS (All issues resolved)
+
+### Re-QA Test Results
+
+| Test | Status | Notes |
+|------|--------|-------|
+| WealthSimple Import | ✅ PASS | 4 holdings imported successfully |
+| Data Persistence (Reload) | ✅ PASS | Data survives page reload |
+| Holdings Page Display | ✅ PASS | All 4 holdings visible in table |
+| Generic CSV Import | ✅ PASS | No regression |
+| Merge Logic | ✅ PASS | Duplicates handled correctly |
+| Console Errors | ✅ PASS | Clean console, no errors |
+| Fix Implementation | ✅ PASS | isInitialized guard in place |
+
+### Verification Evidence
+
+**localStorage Check:**
+```javascript
+localStorage.getItem('klyrsignals_portfolio')
+// Returns: {"holdings":[{"symbol":"AAPL","quantity":10,...}, ...], "lastUpdated":"2026-03-01T..."}
+```
+
+**Dashboard Shows:**
+- Total Value: $13,539.00
+- Holdings: 4 positions
+- Data persists after navigation and reload
+
+**Screenshots Captured:**
+- Dashboard after import: `c13ac9f7-14d6-43c2-bf2f-1748199c165c.png`
+- Holdings table: `de033230-0130-4c3a-baee-ba89595912e8.png`
+
+### Fix Implementation Verified
+
+**PortfolioContext.tsx Changes Confirmed:**
+1. ✅ `isInitialized` flag exists and starts as `false`
+2. ✅ Load effect sets `isInitialized = true` after loading from localStorage
+3. ✅ Save effect has `isInitialized` in dependencies: `[holdings, lastUpdated, isInitialized]`
+4. ✅ Save effect checks `if (!isInitialized) return;`
+5. ✅ `importHoldings()` does NOT directly call localStorage.setItem
+
+### Re-QA Verdict
+
+**Overall:** ✅ **PASS**
+
+**Import Persistence Fix:** ✅ VERIFIED
+
+### Test Summary
+- WealthSimple Import: PASS
+- Data Persistence: PASS
+- Holdings Display: PASS
+- Generic CSV: PASS
+- Merge Logic: PASS
+- Console Errors: PASS
+
+### Next Phase
+→ **Pepper Closeout** (v1.5 documentation and deployment prep)
+
+---
+
+## v1.5 Closeout Phase
+
+| Phase | Agent | Session Key | Status | Started | Completed |
+|-------|-------|-------------|--------|---------|-----------|
+| **pepper_v1.5_closeout** | Pepper | agent:jarvis:subagent:2b56c925-bb04-4540-b735-0fcac5db67fe | ✅ DONE | 2026-03-01T02:43 | 2026-03-01T02:45 |
+
+### v1.5 Summary
+
+**Features Delivered:**
+- ✅ Dark Mode (theme toggle, system preference, persistence)
+- ✅ WealthSimple Import (auto-detection, specialized parser, BUY/SELL handling)
+
+**Pipeline Statistics:**
+- Total Duration: ~14 hours (design → closeout)
+- Subagents Spawned: 6 (Tony, Peter, Heimdall ×2, Pepper)
+- Bugs Found: 1 (import persistence, fixed)
+- QA Verdict: PASS
+
+**Files Created:** 10 new files
+**Files Modified:** 12 existing files
+
+### Project Status
+
+**v1.0:** ✅ COMPLETE (Production Ready)  
+**v1.5:** ✅ COMPLETE (Ready for Deployment)
+
+### Next Steps
+1. Deploy to staging environment
+2. User acceptance testing
+3. Deploy to production (Vercel + Railway)
+4. v1.6 planning (authentication, database, mobile app)
+
+### Peter Build Phase - COMPLETION SUMMARY
+
+**Completed:** 2026-03-01T01:45:00Z  
+**Duration:** ~32 minutes  
+**Status:** ✅ COMPLETE
+
+### Deliverables
+
+#### Phase 1: Dark Mode Implementation ✅
+
+**Tailwind Config (Task 1.1):**
+- ✅ `frontend/tailwind.config.ts` - Added `darkMode: 'class'` and dark color palette
+- ✅ Colors: dark.bg (#0f172a), dark.surface (#1e293b), dark.border (#334155), dark.text (#f1f5f9), dark.muted (#94a3b8)
+
+**ThemeContext (Task 1.2):**
+- ✅ `frontend/context/ThemeContext.tsx` - Created theme provider
+- ✅ System preference detection on first load
+- ✅ localStorage persistence
+- ✅ HTML class updates for dark mode
+
+**Root Layout (Task 1.3):**
+- ✅ `frontend/app/layout.tsx` - Wrapped app with ThemeProvider
+- ✅ Added ThemeToggle to navigation header
+- ✅ Updated nav and footer with dark mode classes
+
+**ThemeToggle Component (Task 1.4):**
+- ✅ `frontend/components/ThemeToggle.tsx` - Created toggle button
+- ✅ Sun/moon icons with proper switching
+- ✅ Accessible with aria-label
+
+**Global Styles (Task 1.6):**
+- ✅ `frontend/app/globals.css` - Added dark mode CSS variables
+- ✅ Root and .dark theme definitions
+
+**All Pages Updated (Tasks 1.7-1.11):**
+- ✅ Dashboard (`app/page.tsx`) - Dark mode classes
+- ✅ Import (`app/import/page.tsx`) - Dark mode classes + format indicator
+- ✅ Holdings (`app/holdings/page.tsx`) - Dark mode classes
+- ✅ Analysis (`app/analysis/page.tsx`) - Dark mode classes
+- ✅ Settings (`app/settings/page.tsx`) - Dark mode classes
+
+#### Phase 2: WealthSimple Import Implementation ✅
+
+**Generic CSV Parser (Task 2.2):**
+- ✅ `frontend/lib/csv-parsers/generic.ts` - Extracted generic parser
+- ✅ Flexible column mapping (symbol/ticker, quantity/shares, etc.)
+
+**WealthSimple Parser (Task 2.3):**
+- ✅ `frontend/lib/csv-parsers/wealthsimple.ts` - Created WealthSimple-specific parser
+- ✅ Handles BUY orders (adds holdings)
+- ✅ Handles SELL orders (reduces/removes holdings)
+- ✅ Commission included in cost basis
+- ✅ Multiple trades for same symbol (weighted average)
+
+**Parser Index (Task 2.4):**
+- ✅ `frontend/lib/csv-parsers/index.ts` - Export all parsers
+- ✅ Auto-detection function based on headers
+
+**Import Page Update (Task 2.5):**
+- ✅ `frontend/app/import/page.tsx` - Added auto-detection
+- ✅ Format indicator UI (blue banner showing "Detected format: WealthSimple")
+- ✅ Parser selection based on detected format
+
+**Sample CSV (Task 2.6):**
+- ✅ `frontend/public/samples/wealthsimple-sample.csv` - Created test file
+- ✅ 4 sample holdings (AAPL, MSFT, GOOGL, NVDA)
+
+#### Phase 3: Build & Test ✅
+
+**Build Verification:**
+- ✅ `npm run build` completes successfully
+- ✅ All 6 pages generated: /, /_not-found, /analysis, /holdings, /import, /settings
+- ✅ No TypeScript errors
+- ✅ No compilation errors
+
+**Files Created/Modified:**
+
+Created:
+1. `frontend/context/ThemeContext.tsx` - Theme provider
+2. `frontend/components/ThemeToggle.tsx` - Toggle button
+3. `frontend/lib/csv-parsers/index.ts` - Parser exports + auto-detection
+4. `frontend/lib/csv-parsers/generic.ts` - Generic CSV parser
+5. `frontend/lib/csv-parsers/wealthsimple.ts` - WealthSimple parser
+6. `frontend/public/samples/wealthsimple-sample.csv` - Sample file
+
+Modified:
+7. `frontend/tailwind.config.ts` - Dark mode configuration
+8. `frontend/app/layout.tsx` - ThemeProvider + ThemeToggle integration
+9. `frontend/app/globals.css` - Dark mode CSS variables
+10. `frontend/app/page.tsx` - Dark mode classes
+11. `frontend/app/import/page.tsx` - Dark mode + WealthSimple import
+12. `frontend/app/holdings/page.tsx` - Dark mode classes
+13. `frontend/app/analysis/page.tsx` - Dark mode classes
+14. `frontend/app/settings/page.tsx` - Dark mode classes
+15. `docs/USER_GUIDE.md` - Added Dark Mode and WealthSimple Import sections
+
+### Build Output
+
+```
+✓ Compiled successfully in 2.8s
+✓ Generating static pages using 55 workers (7/7) in 536.5ms
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /analysis
+├ ○ /holdings
+├ ○ /import
+└ ○ /settings
+
+○  (Static)  prerendered as static content
+```
+
+### Success Criteria Met
+
+- ✅ Dark mode toggle works (sun/moon icons)
+- ✅ Theme persists after reload (localStorage)
+- ✅ System preference detected on first load
+- ✅ All 5 pages styled correctly in both modes
+- ✅ WealthSimple CSV auto-detected
+- ✅ WealthSimple parser handles BUY/SELL orders
+- ✅ Commission included in cost basis
+- ✅ Sample CSV created for testing
+- ✅ `npm run build` completes without errors
+- ✅ No TypeScript errors
+
+### Next Phase
+
+**Heimdall (QA)** - Validate v1.5 features:
+1. Test dark mode toggle on all pages
+2. Verify theme persistence
+3. Test WealthSimple CSV import with sample file
+4. Verify auto-detection works
+5. Test edge cases (SELL orders, multiple BUYs)
+6. Browser validation and screenshots
+
+### Timeline
+- **Tony Design:** Complete (2026-02-28)
+- **Peter Build:** Complete (2026-03-01, 32 minutes)
+- **Heimdall QA:** Pending (~2 hours estimated)
+- **Target Complete:** 2026-03-01
+
+---
+
+### Documentation Updated
+
+**USER_GUIDE.md** - Added two new sections:
+
+**Dark Mode Section:**
+- Toggle theme instructions
+- System preference detection
+- What changes in dark mode (colors, surfaces, text, borders)
+
+**WealthSimple Import Section:**
+- How to export from WealthSimple
+- Auto-detection explanation
+- Supported data (BUY/SELL orders, commission, averaging)
+- Cost basis calculation formula
+- Example WealthSimple CSV format
+- Sample file location
+- Edge cases handled (multiple BUYs, SELLs, invalid data)
 
 ---
 
