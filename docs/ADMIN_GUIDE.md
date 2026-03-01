@@ -908,6 +908,34 @@ vercel logs            # View frontend logs
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-02-28  
+## v1.5 Deployment Notes
+
+### Dark Mode
+- **No backend changes required** - Pure frontend feature
+- **No environment variables** - Theme stored in browser localStorage
+- **No database migrations** - Client-side only
+- **CDN caching** - Theme toggle JS is part of main bundle
+
+### WealthSimple Import
+- **No backend changes required** - Client-side CSV parsing
+- **No API endpoints** - All parsing happens in browser
+- **No rate limits** - No external API calls for import
+- **File uploads** - Client-side only (no server storage)
+
+### Version Update
+Update version in:
+- `frontend/package.json`: `"version": "1.5.0"`
+- `README.md`: Version badge to `1.5.0`
+- `docs/ADMIN_GUIDE.md`: This section
+
+### Rollback Plan
+If issues found:
+1. Revert to previous Vercel deployment
+2. Clear browser cache if theme issues
+3. localStorage can be cleared: `localStorage.clear()`
+
+---
+
+**Version:** 1.5.0  
+**Last Updated:** 2026-03-01  
 **Maintained By:** KlyrSignals Team

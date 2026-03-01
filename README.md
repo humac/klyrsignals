@@ -3,7 +3,7 @@
 **KlyrSignals** is an AI-powered financial analysis platform that identifies portfolio blind spots and over-exposure risks, providing data-driven rebalancing recommendations.
 
 ![Status](https://img.shields.io/badge/status-complete-success)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.5.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🎯 What It Does
@@ -229,6 +229,62 @@ curl http://localhost:8000/api/health
 
 Full API documentation available at `/docs` (Swagger UI) when backend is running.
 
+## ✨ Latest Features (v1.5)
+
+### 🌙 Dark Mode
+- Toggle between light and dark themes
+- System preference detection (auto-switches based on OS)
+- Persistent theme preference (saved to browser)
+- All pages, charts, and components fully styled
+
+### 📊 WealthSimple Import
+- Auto-detect WealthSimple CSV format
+- Specialized parser for WealthSimple Trade confirmations
+- Handles BUY/SELL orders
+- Includes commission in cost basis
+- Averages multiple purchases (weighted average cost)
+- Generic CSV fallback for other formats
+
+### 🐛 Bug Fixes
+- Fixed import state persistence issue (race condition in PortfolioContext)
+- Improved error handling in CSV parser
+- Enhanced theme toggle reliability
+
+## 🚀 Quick Start
+
+### Local Development
+
+```bash
+# Clone repository
+git clone https://github.com/humac/klyrsignals.git
+cd klyrsignals
+
+# Start backend
+cd backend
+source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Start frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+**Access:** http://localhost:3000
+
+### Try Dark Mode
+1. Click sun/moon icon in top-right
+2. Theme switches instantly
+3. Reload page - preference persists
+
+### Import WealthSimple CSV
+1. Go to Import page
+2. Upload WealthSimple CSV export
+3. Auto-detection shows "WealthSimple" banner
+4. Preview holdings
+5. Click Import
+6. Dashboard shows your portfolio
+
 ## 🔧 Tech Stack
 
 ### Frontend
@@ -322,14 +378,29 @@ Agent workflow documents are in `docs/agent-workflow/`.
 - Rebalancing recommendations
 - Web dashboard
 
-### v1.5 - Enhanced Features (Future)
-- [ ] User authentication (JWT)
-- [ ] PostgreSQL database for persistence
-- [ ] Multi-portfolio support
-- [ ] Advanced ML models (clustering, anomaly detection)
-- [ ] Factor analysis
-- [ ] Email alerts
-- [ ] Export to PDF/CSV
+### v1.5 - Enhanced Features ✅ COMPLETE (2026-03-01)
+
+**Status:** ✅ PRODUCTION READY
+
+**Features Delivered:**
+- ✅ Dark Mode (theme toggle, system preference, localStorage persistence)
+- ✅ WealthSimple Import (auto-detection, specialized parser, BUY/SELL handling)
+- ✅ Bug fix (import persistence with isInitialized guard)
+
+**Files Created:**
+- `frontend/context/ThemeContext.tsx` - Theme provider
+- `frontend/components/ThemeToggle.tsx` - Toggle button
+- `frontend/lib/csv-parsers/wealthsimple.ts` - WealthSimple parser
+- `frontend/lib/csv-parsers/generic.ts` - Generic parser
+- `frontend/lib/csv-parsers/index.ts` - Auto-detection
+- `docs/agent-workflow/CLAUDE.md` - AI instructions
+- `docs/agent-workflow/GEMINI.md` - AI instructions
+- `agents/tony.md` - Architect persona
+- `agents/peter.md` - Developer persona
+- `agents/heimdall.md` - QA persona
+- `agents/pepper.md` - Analyst persona
+
+**QA Status:** ✅ PASS (all tests passing)
 
 ### v2.0 - Production (Future)
 - [ ] Broker integration (Plaid, etc.)

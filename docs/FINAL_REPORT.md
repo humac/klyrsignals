@@ -578,6 +578,8 @@ Final QA Verdict: PASS
 - `frontend/lib/csv-parsers/generic.ts`
 - `frontend/lib/csv-parsers/index.ts`
 - `frontend/public/samples/wealthsimple-sample.csv`
+- `docs/agent-workflow/CLAUDE.md`
+- `docs/agent-workflow/GEMINI.md`
 - `agents/tony.md`
 - `agents/peter.md`
 - `agents/heimdall.md`
@@ -594,4 +596,4 @@ Final QA Verdict: PASS
 
 ---
 
-*KlyrSignals v1.0 - Built with ❤️ using Next.js 16 + Python FastAPI*
+*KlyrSignals v1.5 - Built with ❤️ using Next.js 16 + Python FastAPI*
