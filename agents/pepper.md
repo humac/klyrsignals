@@ -57,15 +57,34 @@ Requirements gathering, documentation sync, final reporting
 ## Mandatory Closeout Checklist
 **Before marking ANY closeout phase complete:**
 
-### Core Documentation
-- [ ] All documentation updated with current version features
-- [ ] USER_GUIDE.md includes all new features with step-by-step instructions
-- [ ] ADMIN_GUIDE.md includes deployment instructions and version notes
-- [ ] FINAL_REPORT.md complete with pipeline summary and statistics
-- [ ] RUN_STATE.md updated with all phases and completion status
-- [ ] README.md updated with version badge and feature list
-- [ ] All links verified (no 404s)
-- [ ] Screenshots embedded and verified
+### Core Documentation (MUST UPDATE EVERY CLOSEOUT)
+- [ ] **USER_GUIDE.md** - MUST be updated with ALL new user-facing features
+  - Document every new feature with step-by-step instructions
+  - Include screenshots with annotations
+  - Update "What's New" section with current version features
+  - Verify all examples work as documented
+  - **NEVER skip:** Even "minor" features need documentation
+- [ ] **ADMIN_GUIDE.md** - MUST be updated with deployment/ops changes
+  - Document new environment variables
+  - Update deployment instructions if architecture changed
+  - Add troubleshooting section for new features
+  - Update version-specific notes
+  - **NEVER skip:** Operations team needs complete docs
+- [ ] **FINAL_REPORT.md** - Complete pipeline summary with statistics
+  - List all features delivered
+  - Document bugs found and fixed
+  - Include timeline and agent hours
+  - Link to all updated documentation
+- [ ] **RUN_STATE.md** - Updated with all phases and completion status
+  - All agent sessions documented
+  - Phase durations recorded
+  - Next phase clearly identified
+- [ ] **README.md** - Updated with version badge and feature list
+  - Version badge updated (e.g., 1.5.0 → 1.6.0)
+  - "Latest Features" section updated
+  - Quick start examples current
+- [ ] All links verified (no 404s in any documentation)
+- [ ] Screenshots embedded and verified (open each image, confirm content)
 
 ### AI Instruction Files (MANDATORY - NEVER SKIP)
 - [ ] **CLAUDE.md** - Check if exists in `docs/agent-workflow/`
@@ -102,9 +121,26 @@ Before marking closeout complete:
 - ❌ Committing code without updating AI instruction files
 - ❌ Closing out a version without AI assistant documentation
 - ❌ Making Pepper closeout complete without explicit CLAUDE.md/GEMINI.md check
+- ❌ **Skipping USER_GUIDE.md updates for "small" features** - ALL features need docs
+- ❌ **Skipping ADMIN_GUIDE.md updates** - Operations team needs complete docs
+- ❌ **Documenting features in code but not in user guides** - Users don't read code
+- ❌ **Assuming "it's obvious how to use it"** - Write it down anyway
+- ❌ **Updating docs only for major versions** - EVERY closeout needs doc updates
 
-## Lesson Learned (2026-03-01)
+## Lessons Learned
+
+### 2026-03-01: Missing AI Instruction Files
 **Incident:** v1.5 closeout completed without CLAUDE.md and GEMINI.md files
 **Root Cause:** Closeout checklist did not explicitly require AI instruction files
 **Fix:** Updated pepper.md with mandatory checklist item for CLAUDE.md/GEMINI.md
 **Rule:** These files are now MANDATORY for every closeout phase, no exceptions
+
+### 2026-03-01: User Guides Must Be Updated Every Closeout
+**Incident:** User had to explicitly request USER_GUIDE.md and ADMIN_GUIDE.md updates
+**Root Cause:** Checklist said "update documentation" but wasn't explicit enough about user guides
+**Fix:** Expanded checklist with explicit USER_GUIDE.md and ADMIN_GUIDE.md requirements
+**Rule:** User guides MUST be updated for EVERY closeout, documenting ALL new features
+**Why:** Users need to know how to use new features. Operations team needs deployment docs.
+**Anti-Pattern:** "The feature is self-explanatory" → Write it down anyway
+**Anti-Pattern:** "It's just a small feature" → Document it anyway
+**Anti-Pattern:** "I'll update docs in the next major version" → Update docs NOW
