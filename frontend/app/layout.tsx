@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from '@/context/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PortfolioProvider } from '@/context/PortfolioContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,8 +32,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <PortfolioProvider>
-            <nav className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border">
+          <AuthProvider>
+            <PortfolioProvider>
+              <nav className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                   <div className="flex items-center">
@@ -72,7 +74,8 @@ export default function RootLayout({
                 </p>
               </div>
             </footer>
-          </PortfolioProvider>
+            </PortfolioProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

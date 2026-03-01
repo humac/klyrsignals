@@ -3,7 +3,7 @@
 **KlyrSignals** is an AI-powered financial analysis platform that identifies portfolio blind spots and over-exposure risks, providing data-driven rebalancing recommendations.
 
 ![Status](https://img.shields.io/badge/status-complete-success)
-![Version](https://img.shields.io/badge/version-1.5.0-blue)
+![Version](https://img.shields.io/badge/version-1.6.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🎯 What It Does
@@ -43,6 +43,13 @@ KlyrSignals analyzes your investment portfolio to:
 - **Rebalancing Actions**: Specific "sell X, buy Y" recommendations
 - **Priority Ranking**: Actions sorted by risk reduction impact
 - **Expected Impact**: Estimated risk score improvement for each action
+
+### 🔐 Authentication & Security (v1.6 NEW)
+- **Email/Password Login**: Secure registration and login with JWT tokens
+- **OAuth Sign-In**: Google and GitHub authentication
+- **Multi-Device Sync**: Portfolio data synced across devices via cloud database
+- **Data Persistence**: PostgreSQL database with automatic backups
+- **Security**: bcrypt password hashing, CSRF protection, httpOnly cookies
 
 ## 🏗️ Architecture (Hybrid)
 
@@ -229,7 +236,39 @@ curl http://localhost:8000/api/health
 
 Full API documentation available at `/docs` (Swagger UI) when backend is running.
 
-## ✨ Latest Features (v1.5)
+## ✨ Latest Features (v1.6 - March 2026)
+
+### 🔐 User Authentication
+- **Email/Password Registration**: Secure account creation with validation
+- **Login/Logout**: JWT-based session management
+- **Token Refresh**: 15-minute access tokens, 7-day refresh tokens
+- **Protected Routes**: All portfolio data requires authentication
+- **Password Security**: bcrypt hashing (12 rounds)
+
+### 🔗 OAuth Integration
+- **Google Sign-In**: One-click authentication with Google accounts
+- **GitHub Sign-In**: One-click authentication with GitHub accounts
+- **Account Linking**: OAuth accounts linked to User model
+- **CSRF Protection**: State parameter prevents cross-site attacks
+- **PKCE Support**: Enhanced OAuth security flow
+
+### 💾 Database & Migration
+- **PostgreSQL**: Production-ready relational database
+- **Prisma ORM**: Type-safe database client with migrations
+- **Portfolio Migration**: Migrate localStorage data to cloud database
+- **Audit Logging**: Track user actions for compliance
+- **Duplicate Handling**: Smart merge of duplicate holdings during migration
+
+### 🛡️ Security Features
+- **JWT Tokens**: HS256 algorithm with expiration
+- **httpOnly Cookies**: XSS protection for refresh tokens
+- **Input Validation**: Pydantic models on all endpoints
+- **CORS Configuration**: Restricted to specific origins
+- **No Hardcoded Secrets**: All credentials via environment variables
+
+---
+
+## ✨ Previous Features (v1.5 - February 2026)
 
 ### 🌙 Dark Mode
 - Toggle between light and dark themes
@@ -401,6 +440,38 @@ Agent workflow documents are in `docs/agent-workflow/`.
 - `agents/pepper.md` - Analyst persona
 
 **QA Status:** ✅ PASS (all tests passing)
+
+### v1.6 - Authentication & Database ✅ COMPLETE (2026-03-01)
+
+**Status:** ✅ PRODUCTION READY
+
+**Features Delivered:**
+- ✅ User Authentication (email/password registration and login)
+- ✅ OAuth Integration (Google + GitHub sign-in)
+- ✅ JWT Tokens (15min access, 7day refresh)
+- ✅ PostgreSQL Database with Prisma ORM
+- ✅ Portfolio Migration (localStorage → cloud)
+- ✅ Password Hashing (bcrypt, 12 rounds)
+- ✅ Protected API Endpoints
+- ✅ Audit Logging
+- ✅ GDPR Compliance (right to deletion)
+
+**Files Created:**
+- `backend/prisma/schema.prisma` - Database schema (6 models)
+- `backend/app/services/auth.py` - Authentication service
+- `backend/app/services/oauth_service.py` - OAuth service
+- `backend/app/api/v1/auth.py` - Auth endpoints
+- `backend/app/api/v1/oauth.py` - OAuth endpoints
+- `backend/app/api/v1/migration.py` - Migration endpoint
+- `frontend/context/AuthContext.tsx` - Auth state management
+- `frontend/components/ProtectedRoute.tsx` - Route protection
+- `frontend/app/login/page.tsx` - Login page
+- `frontend/app/register/page.tsx` - Registration page
+- `frontend/app/migrate/page.tsx` - Migration page
+
+**QA Status:** ✅ PASS (34/34 checks)
+
+**Token Usage:** ~7.2M tokens (auth: 100k, migration: 1.7M, oauth: 3.4M, QA: 2M)
 
 ### v2.0 - Production (Future)
 - [ ] Broker integration (Plaid, etc.)

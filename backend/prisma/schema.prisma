@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-py"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String?
+  name          String?
+  avatarUrl     String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  accounts      Account[]
+  sessions      Session[]
+  portfolios    Portfolio[]
+  
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  userAgent    String?
+  ipAddress    String?
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+}
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String   @default("My Portfolio")
+  description String?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings    Holding[]
+  
+  @@index([userId])
+}
+
+model Holding {
+  id            String   @id @default(uuid())
+  portfolioId   String
+  symbol        String
+  quantity      Float
+  purchasePrice Float
+  purchaseDate  DateTime?
+  assetClass    String   @default("stock")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  portfolio     Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  
+  @@unique([portfolioId, symbol])
+  @@index([portfolioId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  resource  String?
+  resourceId String?
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+  metadata  Json?
+  
+  @@index([userId])
+  @@index([timestamp])
+  @@index([action])
+}

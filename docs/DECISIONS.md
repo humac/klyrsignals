@@ -1,8 +1,9 @@
 # DECISIONS.md - KlyrSignals
 
-**Project:** KlyrSignals v1.0.0  
+**Project:** KlyrSignals v1.6.0  
 **Created:** 2026-02-28  
-**Status:** ✅ Complete
+**Last Updated:** 2026-03-01  
+**Status:** ✅ v1.5 Complete | 🔄 v1.6 Architecture Complete
 
 ---
 
@@ -449,11 +450,271 @@ def calculate_risk_score(holdings, prices, allocation):
 |----------|--------|--------|
 | Hybrid Architecture (Next.js + FastAPI) | ✅ Implemented | Enables best-in-class UX + financial analysis |
 | Market Data: yfinance | ✅ Implemented | $0 cost for MVP, easy upgrade path |
-| No Auth in v1.0 | ✅ Implemented | Faster MVP, simpler architecture |
+| No Auth in v1.0 | ✅ Implemented (v1.5) | Faster MVP, simpler architecture |
 | Rules-Based ML | ✅ Implemented | 80% value, 20% complexity |
-| No Database in v1.0 | ✅ Implemented | Zero infra cost, stateless backend |
+| No Database in v1.0 | ✅ Implemented (v1.5) | Zero infra cost, stateless backend |
 | Risk Scoring Algorithm | ✅ Implemented | Transparent, actionable risk metric |
+| **PostgreSQL + Prisma for v1.6** | 🔄 Designed | Production-ready data persistence |
+| **JWT Auth with OAuth for v1.6** | 🔄 Designed | Secure multi-user support |
+| **bcrypt Password Hashing** | 🔄 Designed | Industry-standard security |
+| **GDPR Compliance** | 🔄 Designed | Right to deletion, data export |
 
 ---
 
-**All architectural decisions documented and implemented in v1.0.**
+## [DEC-007] PostgreSQL Database for v1.6
+
+**Date:** 2026-03-01  
+**Decided By:** Tony (Lead Architect)  
+**Status:** 🔄 Architecture Complete
+
+### Context
+v1.5 uses browser localStorage for all data storage, which means:
+- No data persistence across devices
+- No user accounts
+- No multi-user support
+- Data loss if browser cache cleared
+
+v1.6 requires a production-ready database for user accounts, portfolios, and audit logging.
+
+### Decision
+**Use PostgreSQL with Prisma ORM:**
+- **Database:** PostgreSQL 15 (managed: Railway or Supabase)
+- **ORM:** Prisma ORM (type-safe, auto-generated client)
+- **Hosting:** Managed service (Railway or Supabase)
+- **Migrations:** Prisma Migrate
+
+### Rationale
+1. **PostgreSQL Strengths:**
+   - Robust, production-ready RDBMS
+   - Excellent JSON support (for metadata)
+   - Strong consistency and ACID compliance
+   - Managed services available (Railway, Supabase)
+   - Free tier sufficient for MVP
+
+2. **Prisma ORM Strengths:**
+   - Type-safe database client (auto-generated from schema)
+   - Excellent TypeScript/Python support
+   - Built-in migration system
+   - Great developer experience
+   - Prevents SQL injection by design
+
+3. **Managed Service Benefits:**
+   - Automatic backups
+   - High availability
+   - No infrastructure management
+   - Easy scaling
+
+### Alternatives Considered
+
+| Option | Pros | Cons | Why Rejected |
+|--------|------|------|--------------|
+| **MongoDB** | Flexible schema, JSON-native | Less type safety, overkill for structured data | PostgreSQL better fit for relational data |
+| **SQLite** | Simple, file-based | No concurrent writes, not production-ready | Doesn't scale for multi-user |
+| **Supabase (PostgreSQL)** | PostgreSQL + auth + realtime | Vendor lock-in, more complex | Railway simpler for MVP |
+| **Firebase** | Real-time sync, auth included | NoSQL, vendor lock-in, expensive at scale | PostgreSQL more flexible |
+| **Self-hosted PostgreSQL** | Full control | Infrastructure overhead | Managed service better for MVP |
+
+### Consequences
+- **Positive:**
+  - Production-ready data persistence
+  - Multi-user support
+  - Data sync across devices
+  - Audit logging capability
+  - GDPR compliance (right to deletion)
+- **Negative:**
+  - Infrastructure cost (~$5-10/month for managed PostgreSQL)
+  - Increased complexity (migrations, connection pooling)
+  - Database management required
+
+---
+
+## [DEC-008] JWT-Based Authentication for v1.6
+
+**Date:** 2026-03-01  
+**Decided By:** Tony (Lead Architect)  
+**Status:** 🔄 Architecture Complete
+
+### Context
+v1.5 has no authentication - all endpoints are public. v1.6 requires secure user authentication with support for:
+- Email/password login
+- OAuth login (Google, GitHub)
+- Session management
+- Token refresh
+
+### Decision
+**Use JWT (JSON Web Tokens) with dual-token system:**
+- **Access Token:** JWT, 15-minute expiry, for API authentication
+- **Refresh Token:** JWT + database, 7-day expiry, for obtaining new access tokens
+- **Storage:** httpOnly cookies for refresh tokens, memory for access tokens
+- **Algorithm:** HS256 (HMAC with SHA-256)
+- **OAuth:** Authlib for Google and GitHub OAuth
+
+### Rationale
+1. **JWT Benefits:**
+   - Stateless authentication (no session storage needed for access tokens)
+   - Self-contained (contains user info)
+   - Widely supported (libraries in all languages)
+   - Standard format (RFC 7519)
+
+2. **Dual-Token System:**
+   - Short-lived access tokens reduce risk if compromised
+   - Long-lived refresh tokens provide good UX (stay logged in)
+   - Refresh tokens stored in database (revocable)
+
+3. **httpOnly Cookies:**
+   - Not accessible via JavaScript (XSS protection)
+   - Automatically sent with requests
+   - Can be marked secure (HTTPS only)
+   - Can be marked sameSite (CSRF protection)
+
+4. **HS256 Algorithm:**
+   - Simpler than RS256 (single secret key)
+   - Sufficient for MVP
+   - Can upgrade to RS256 later if needed
+
+### Alternatives Considered
+
+| Option | Pros | Cons | Why Rejected |
+|--------|------|------|--------------|
+| **Session-based auth** | Simple, server-controlled | Requires session storage, less scalable | JWT better for distributed systems |
+| **OAuth only** | No password management | Users without Google/GitHub accounts | Need email/password fallback |
+| **RS256 (asymmetric)** | Better for microservices | More complex (key management) | HS256 sufficient for MVP |
+| **NextAuth.js** | Built-in for Next.js | Less control, vendor lock-in | Custom implementation more flexible |
+
+### Consequences
+- **Positive:**
+  - Secure authentication
+  - Good UX (stay logged in for 7 days)
+  - OAuth support (Google, GitHub)
+  - Revocable sessions
+  - XSS protection (httpOnly cookies)
+- **Negative:**
+  - Increased complexity (token management)
+  - Token expiry handling required
+  - OAuth app registration required
+
+---
+
+## [DEC-009] bcrypt Password Hashing
+
+**Date:** 2026-03-01  
+**Decided By:** Tony (Lead Architect)  
+**Status:** 🔄 Architecture Complete
+
+### Context
+User passwords must be stored securely to protect against data breaches. Industry standard is to hash passwords with a slow, salted hash function.
+
+### Decision
+**Use bcrypt for password hashing:**
+- **Algorithm:** bcrypt
+- **Rounds:** 12 (minimum, can increase over time)
+- **Library:** passlib[bcrypt] or bcrypt
+- **Salt:** Automatically generated per password
+
+### Rationale
+1. **bcrypt Benefits:**
+   - Adaptive (can increase rounds as hardware improves)
+   - Salted (prevents rainbow table attacks)
+   - Slow by design (prevents brute force)
+   - Industry standard (widely audited)
+   - Built-in salt storage
+
+2. **12 Rounds:**
+   - Good balance of security and performance
+   - Takes ~200ms per hash (acceptable for login)
+   - Can increase to 13-14 over time
+
+### Alternatives Considered
+
+| Option | Pros | Cons | Why Rejected |
+|--------|------|------|--------------|
+| **Argon2** | More secure, memory-hard | Less widely supported, newer | bcrypt more established |
+| **scrypt** | Memory-hard, secure | Less widely supported | bcrypt sufficient for MVP |
+| **PBKDF2** | Widely supported, NIST approved | Less resistant to GPU attacks | bcrypt better for password storage |
+| **SHA-256** | Fast, widely supported | Too fast (vulnerable to brute force) | Not suitable for password hashing |
+
+### Consequences
+- **Positive:**
+  - Industry-standard security
+  - Resistant to brute force attacks
+  - Resistant to rainbow table attacks
+  - Future-proof (can increase rounds)
+- **Negative:**
+  - Slower than simple hashes (acceptable for login)
+  - Password hashing adds ~200ms to registration/login
+
+---
+
+## [DEC-010] GDPR Compliance for v1.6
+
+**Date:** 2026-03-01  
+**Decided By:** Tony (Lead Architect)  
+**Status:** 🔄 Architecture Complete
+
+### Context
+KlyrSignals will have EU users, so GDPR compliance is required. Key requirements include:
+- Right to access (data export)
+- Right to deletion (account deletion)
+- Right to rectification (profile updates)
+- Data minimization
+- Consent management
+
+### Decision
+**Implement GDPR compliance features:**
+- **Right to Deletion:** DELETE /users/me endpoint with cascade delete
+- **Right to Access:** Export user data (JSON format)
+- **Right to Rectification:** Profile update endpoints
+- **Data Minimization:** Only collect necessary data (email, name, portfolio)
+- **Consent:** Terms of service checkbox on registration
+- **Privacy Policy:** Clear privacy policy page
+- **Data Retention:** 90-day audit log retention, immediate deletion on request
+
+### Rationale
+1. **Legal Requirement:**
+   - GDPR applies to any service with EU users
+   - Fines up to 4% of global revenue or €20M
+   - Compliance builds user trust
+
+2. **Technical Implementation:**
+   - Cascade delete ensures complete data removal
+   - Audit logs track deletion for compliance
+   - Data export in machine-readable format
+
+### Alternatives Considered
+
+| Option | Pros | Cons | Why Rejected |
+|--------|------|------|--------------|
+| **Geo-blocking EU users** | No GDPR compliance needed | Loses EU market, complex to enforce | Better to comply |
+| **Minimal compliance** | Less development effort | Still at risk of fines | Full compliance safer |
+
+### Consequences
+- **Positive:**
+  - Legal compliance (avoid fines)
+  - User trust (transparent data practices)
+  - Clear data ownership
+- **Negative:**
+  - Development effort (delete, export features)
+  - Audit log storage (90 days)
+  - Privacy policy maintenance
+
+---
+
+## Summary of All Architectural Decisions
+
+| Decision | Status | Impact |
+|----------|--------|--------|
+| Hybrid Architecture (Next.js + FastAPI) | ✅ Implemented | Enables best-in-class UX + financial analysis |
+| Market Data: yfinance | ✅ Implemented | $0 cost for MVP, easy upgrade path |
+| No Auth in v1.0 | ✅ Implemented (v1.5) | Faster MVP, simpler architecture |
+| Rules-Based ML | ✅ Implemented | 80% value, 20% complexity |
+| No Database in v1.0 | ✅ Implemented (v1.5) | Zero infra cost, stateless backend |
+| Risk Scoring Algorithm | ✅ Implemented | Transparent, actionable risk metric |
+| **PostgreSQL + Prisma for v1.6** | 🔄 Designed | Production-ready data persistence |
+| **JWT Auth with OAuth for v1.6** | 🔄 Designed | Secure multi-user support |
+| **bcrypt Password Hashing** | 🔄 Designed | Industry-standard security |
+| **GDPR Compliance** | 🔄 Designed | Legal compliance, user trust |
+
+---
+
+**v1.5:** All architectural decisions documented and implemented.  
+**v1.6:** Architecture design complete, ready for implementation.
