@@ -23,26 +23,30 @@
 ### Components
 
 **Frontend (Next.js on Vercel)**
-- Framework: Next.js 15 with App Router
+- Framework: Next.js 16 with App Router
 - UI Library: React 19 with Tailwind CSS
-- State Management: React Context API
-- Storage: Browser localStorage (client-side only)
+- State Management: React Context API (Auth, Portfolio, Theme)
+- Storage: PostgreSQL database (v1.6+) with localStorage fallback
 - Deployment: Vercel (serverless, global CDN)
 
 **Backend (FastAPI on Railway)**
 - Framework: FastAPI (Python 3.12)
 - API Style: RESTful with OpenAPI docs
+- Database: PostgreSQL with Prisma ORM (v1.6+)
+- Authentication: JWT tokens + OAuth 2.0 (Google, GitHub)
 - Analysis: NumPy, Pandas for portfolio math
 - Deployment: Railway (auto-scaling, managed)
 - Health Checks: `/api/health`, `/api/market/status`
 
-**Data Flow**
-1. User imports portfolio via frontend
-2. Data stored in browser localStorage
-3. Frontend sends holdings to backend for analysis
-4. Backend fetches market data from providers
-5. Analysis results returned to frontend
-6. Charts and insights rendered client-side
+**Data Flow (v1.6+)**
+1. User registers/logs in via frontend
+2. JWT tokens stored in browser (httpOnly cookies)
+3. Portfolio data synced to PostgreSQL database
+4. Frontend sends holdings to backend for analysis (authenticated)
+5. Backend fetches market data from providers
+6. Analysis results returned to frontend
+7. Charts and insights rendered client-side
+8. Data persists across devices and sessions
 
 ---
 
@@ -199,6 +203,7 @@ Railway automatically checks `/api/health`. Verify it returns:
 | `NEXT_PUBLIC_API_URL` | Yes | Backend API base URL |
 | `NEXT_PUBLIC_APP_NAME` | No | App name (default: "KlyrSignals") |
 | `NEXT_PUBLIC_VERSION` | No | Version string for display |
+| `NEXT_PUBLIC_APP_URL` | No | Frontend URL (for OAuth callbacks) |
 
 #### Backend (.env)
 
@@ -208,9 +213,225 @@ Railway automatically checks `/api/health`. Verify it returns:
 | `DEBUG` | No | `True` | Enable debug logging |
 | `HOST` | No | `0.0.0.0` | Server bind address |
 | `PORT` | No | `8000` | Server port |
+| `DATABASE_URL` | **Yes (v1.6+)** | None | PostgreSQL connection string |
+| `SECRET_KEY` | **Yes (v1.6+)** | None | JWT signing key (min 32 chars) |
+| `SENDGRID_API_KEY` | No | None | Email service for password resets |
 | `ALPHA_VANTAGE_API_KEY` | No | None | Premium market data API key |
 | `YFINANCE_ENABLED` | No | `true` | Enable Yahoo Finance data |
 | `ALLOWED_ORIGINS` | No | `*` | CORS allowed origins (comma-separated) |
+
+---
+
+## Authentication Configuration (v1.6+)
+
+### Overview
+
+KlyrSignals v1.6 introduces full user authentication with:
+- **Email/Password** registration and login
+- **OAuth 2.0** support (Google, GitHub)
+- **JWT tokens** for session management
+- **PostgreSQL database** for user data persistence
+
+### Environment Variables
+
+**Required for Authentication:**
+
+```bash
+# Backend .env
+DATABASE_URL=postgresql://user:password@host:5432/klyrsignals
+SECRET_KEY=your-super-secret-jwt-key-min-32-characters-long
+SENDGRID_API_KEY=SG.xxxxx (for password reset emails)
+```
+
+**JWT Configuration:**
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| **Access Token** | 15 minutes | Short-lived token for API requests |
+| **Refresh Token** | 7 days | Long-lived token for session persistence |
+| **Algorithm** | HS256 | HMAC with SHA-256 |
+| **Secret Key** | Min 32 chars | Use strong random string |
+
+**Generate Secret Key:**
+```bash
+# Python
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+# OpenSSL
+openssl rand -base64 32
+```
+
+### Database Setup
+
+**Step 1: Install PostgreSQL**
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install postgresql postgresql-contrib
+
+# macOS (Homebrew)
+brew install postgresql
+```
+
+**Step 2: Create Database**
+
+```bash
+# Connect to PostgreSQL
+psql -U postgres
+
+# Create database
+CREATE DATABASE klyrsignals;
+
+# Create user (optional)
+CREATE USER klyr WITH PASSWORD 'your-password';
+GRANT ALL PRIVILEGES ON DATABASE klyrsignals TO klyr;
+```
+
+**Step 3: Run Migrations**
+
+```bash
+cd backend
+source venv/bin/activate
+prisma db push
+```
+
+This creates the following tables:
+- `User` - User accounts (email, password hash, name)
+- `Session` - Active sessions (refresh tokens)
+- `Portfolio` - User portfolios
+- `Holding` - Portfolio holdings
+- `AuditLog` - Security audit trail
+- `OAuthAccount` - Linked OAuth accounts (Google, GitHub)
+
+**Step 4: Verify Connection**
+
+```bash
+# Test database connection
+psql postgresql://user:pass@host:5432/klyrsignals -c "SELECT 1"
+```
+
+### OAuth Setup (Optional)
+
+**Google OAuth:**
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project or select existing
+3. Enable "Google+ API"
+4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client ID"
+5. Set authorized redirect URI: `https://your-backend.com/api/v1/oauth/google/callback`
+6. Copy Client ID and Client Secret
+
+```bash
+# Backend .env
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+**GitHub OAuth:**
+
+1. Go to [GitHub Settings](https://github.com/settings/developers)
+2. Click "New OAuth App"
+3. Set Authorization callback URL: `https://your-backend.com/api/v1/oauth/github/callback`
+4. Copy Client ID and generate Client Secret
+
+```bash
+# Backend .env
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+```
+
+**Security Notes:**
+- Store OAuth secrets securely (never commit to git)
+- Use environment variables or secret manager
+- Rotate secrets periodically
+- Monitor OAuth usage in provider dashboards
+
+### Password Reset (Email)
+
+**SendGrid Setup:**
+
+1. Create account at [SendGrid](https://sendgrid.com/)
+2. Verify your domain
+3. Create API Key (Full Access)
+4. Add to backend .env:
+
+```bash
+SENDGRID_API_KEY=SG.xxxxx.yyyyy
+```
+
+**Password Reset Flow:**
+1. User requests reset at `/forgot-password`
+2. Backend generates secure token (1-hour expiry)
+3. Email sent with reset link
+4. User clicks link, sets new password
+5. Token invalidated after use
+
+### Security Best Practices
+
+**Password Hashing:**
+- Algorithm: bcrypt
+- Rounds: 12 (default)
+- Salt: Auto-generated per password
+
+**Token Storage:**
+- Access token: localStorage (short-lived)
+- Refresh token: httpOnly cookie (XSS protection)
+- Never store tokens in URL or plain text
+
+**CORS Configuration:**
+```bash
+# Production - restrict to your domains
+ALLOWED_ORIGINS=https://klyrsignals.com,https://www.klyrsignals.com
+
+# Development
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+```
+
+**Rate Limiting:**
+- Login attempts: 5 per minute per IP
+- Password reset: 3 per hour per email
+- API requests: 100 per minute per user
+
+---
+
+## Theme System Configuration (v1.5)
+
+### Dark Mode
+
+**How It Works:**
+- Uses Tailwind CSS `darkMode: 'class'` strategy
+- Theme preference stored in localStorage
+- Toggle component in header (`ThemeToggle.tsx`)
+- System preference detection on first visit
+
+**Customization:**
+
+Edit `frontend/tailwind.config.ts`:
+
+```javascript
+module.exports = {
+  darkMode: 'class', // Enable class-based dark mode
+  theme: {
+    extend: {
+      colors: {
+        dark: {
+          bg: '#0f172a',      // Main background
+          surface: '#1e293b',  // Cards/surfaces
+          border: '#334155',   // Borders
+          text: '#f1f5f9',     // Primary text
+          muted: '#94a3b8',    // Secondary text
+        }
+      }
+    }
+  }
+}
+```
+
+**No Backend Changes Required:**
+- Dark mode is purely frontend feature
+- No environment variables needed
+- No database migrations
+- Theme stored in browser localStorage
 
 ---
 
@@ -908,34 +1129,86 @@ vercel logs            # View frontend logs
 
 ---
 
-## v1.5 Deployment Notes
+## v1.6 Deployment Notes
 
-### Dark Mode
+### Authentication & Database
+
+**Backend Changes Required:**
+- ✅ PostgreSQL database setup
+- ✅ Environment variables: `DATABASE_URL`, `SECRET_KEY`
+- ✅ Run Prisma migrations: `prisma db push`
+- ✅ Optional: OAuth credentials (Google, GitHub)
+- ✅ Optional: SendGrid API key for password resets
+
+**Frontend Changes Required:**
+- ✅ AuthContext provider in root layout
+- ✅ Protected routes wrapper
+- ✅ Login/Register pages
+- ✅ Migration page for v1.0 users
+
+**Security Checklist:**
+- [ ] SECRET_KEY is strong random string (min 32 chars)
+- [ ] DATABASE_URL uses SSL in production
+- [ ] CORS restricted to specific domains
+- [ ] Rate limiting enabled on auth endpoints
+- [ ] OAuth secrets stored securely (not in git)
+- [ ] httpOnly cookies for refresh tokens
+- [ ] HTTPS enforced in production
+
+**Migration Path (v1.0 → v1.6):**
+1. Deploy backend with database
+2. Deploy frontend with auth
+3. Existing users prompted to migrate on login
+4. LocalStorage data transferred to cloud
+5. Local data cleared after successful migration
+
+### Dark Mode (v1.5)
 - **No backend changes required** - Pure frontend feature
 - **No environment variables** - Theme stored in browser localStorage
 - **No database migrations** - Client-side only
 - **CDN caching** - Theme toggle JS is part of main bundle
 
-### WealthSimple Import
+### WealthSimple Import (v1.5)
 - **No backend changes required** - Client-side CSV parsing
 - **No API endpoints** - All parsing happens in browser
 - **No rate limits** - No external API calls for import
 - **File uploads** - Client-side only (no server storage)
 
 ### Version Update
+
 Update version in:
-- `frontend/package.json`: `"version": "1.5.0"`
-- `README.md`: Version badge to `1.5.0`
+- `frontend/package.json`: `"version": "1.6.0"`
+- `backend/pyproject.toml` or `requirements.txt`: Version bump
+- `README.md`: Version badge to `1.6.0`
 - `docs/ADMIN_GUIDE.md`: This section
+- `docs/USER_GUIDE.md`: Version references
 
 ### Rollback Plan
-If issues found:
-1. Revert to previous Vercel deployment
-2. Clear browser cache if theme issues
-3. localStorage can be cleared: `localStorage.clear()`
+
+**If authentication issues found:**
+1. Revert backend to previous version
+2. Rollback database migration (if needed): `prisma migrate reset`
+3. Revert frontend deployment
+4. Clear browser cache and localStorage
+
+**If database issues found:**
+1. Restore from backup
+2. Check connection string
+3. Verify Prisma schema matches database
+4. Review migration logs
+
+**If OAuth issues found:**
+1. Verify redirect URIs in provider console
+2. Check client ID/secret in environment
+3. Test with email/password login as fallback
+4. Review OAuth callback logs
 
 ---
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Last Updated:** 2026-03-01  
 **Maintained By:** KlyrSignals Team
+
+**Support:**
+- GitHub Issues: https://github.com/humac/klyrsignals/issues
+- Documentation: https://github.com/humac/klyrsignals/tree/main/docs

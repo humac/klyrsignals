@@ -15,21 +15,120 @@ KlyrSignals is designed for:
 
 ### Key Features
 
-- **Portfolio Import**: Upload holdings via CSV or manual entry
+- **🔐 User Authentication**: Secure login with email/password or OAuth (Google/GitHub)
+- **☁️ Cloud Sync**: Portfolio data synced across all your devices
+- **Portfolio Import**: Upload holdings via CSV or manual entry (including WealthSimple)
 - **Risk Scoring**: AI-powered risk assessment (0-100 scale)
 - **Blind Spot Detection**: Identify hidden concentration risks
 - **Over-Exposure Alerts**: Get warned about sector/geographic imbalances
 - **Asset Allocation Analysis**: Visual breakdown of your portfolio
 - **Performance Tracking**: Monitor returns and benchmark comparisons
+- **🌙 Dark Mode**: Comfortable viewing in any lighting condition
 
 ---
 
 ## Getting Started
 
+### Create an Account
+
+**First-time users must create an account:**
+
+1. Go to `/register` or click "Sign Up" in the navigation
+2. Enter your details:
+   - **Full Name**: Your name (e.g., John Doe)
+   - **Email Address**: Valid email for account recovery
+   - **Password**: Minimum 8 characters
+   - **Confirm Password**: Re-enter your password
+3. Click "Create Account"
+4. You'll be automatically logged in and redirected to the dashboard
+
+**Alternative: Sign up with OAuth**
+- Click "Google" to register with your Google account
+- Click "GitHub" to register with your GitHub account
+- No password required - authentication handled by provider
+
+### Login
+
+**Returning users:**
+
+1. Go to `/login` or click "Sign In" in the navigation
+2. Enter your credentials:
+   - **Email**: The email you registered with
+   - **Password**: Your account password
+3. Click "Sign In"
+4. You'll be redirected to the dashboard
+
+**OAuth Login:**
+- Click "Google" or "GitHub" button
+- Authorize KlyrSignals when prompted
+- Automatically logged in
+
+### Logout
+
+1. Click your profile icon or name in the top-right corner
+2. Select "Logout" from the dropdown menu
+3. You'll be redirected to the login page
+
+**Note:** Your portfolio data is saved to your account and will be available when you log back in from any device.
+
+### Password Reset
+
+**Forgot your password?**
+
+1. Go to `/forgot-password` or click "Forgot your password?" on the login page
+2. Enter your registered email address
+3. Click "Send Reset Link"
+4. Check your email for a password reset link
+5. Click the link and set a new password
+6. Log in with your new password
+
+### Migrate Local Portfolio to Cloud (v1.6)
+
+**If you used KlyrSignals before v1.6 (local storage version):**
+
+When you log in to v1.6, you'll be automatically prompted to migrate your existing portfolio from browser localStorage to your cloud account.
+
+**Migration Process:**
+
+1. **Login to your account**
+   - Use your existing credentials or OAuth
+
+2. **You'll see a migration prompt**
+   - Shows your local portfolio stats (number of holdings, estimated value)
+   - Explains what will happen during migration
+
+3. **Click "Migrate to Cloud"**
+   - Your holdings are securely uploaded to your account
+   - Duplicate symbols are automatically merged
+   - Migration progress is shown (0-100%)
+
+4. **Migration complete**
+   - Local data is cleared from browser
+   - You're redirected to the dashboard
+   - Your portfolio is now accessible from any device
+
+**What Gets Migrated:**
+- All holdings (symbols, quantities, purchase prices)
+- Purchase dates
+- Asset class assignments
+
+**Important Notes:**
+- ✅ Migration is **secure** - uses encrypted HTTPS connection
+- ✅ Migration is **logged** - audit trail for security
+- ✅ Local data is **cleared** after successful migration
+- ⚠️ **One-time process** - only needed when upgrading from v1.0 to v1.6+
+- ⚠️ **Don't close browser** during migration (takes ~10-30 seconds)
+
+**Skip Migration:**
+- Click "Skip (Start Fresh)" if you want to start with an empty portfolio
+- You can always import holdings manually later
+
 ### Creating Your First Portfolio
 
+**After logging in (or completing migration):**
+
 1. **Navigate to the Import Page**
-   - From the homepage, click "Import Your Portfolio"
+   - From the dashboard, click "Import Your Portfolio"
    - Or use the navigation menu and select "Import"
 
 2. **Choose Your Import Method**
@@ -495,75 +594,99 @@ If issues persist:
 
 ---
 
-## Dark Mode
+## Dark Mode (v1.5)
 
 KlyrSignals supports both light and dark themes for comfortable viewing in any lighting condition.
 
-### Toggle Theme
+### Toggle Dark Mode
 
-1. Click the sun/moon icon in the top-right corner of the navigation bar
-2. Theme preference is saved automatically to your browser
-3. Reloads will remember your choice
+1. **Click the theme toggle** (sun/moon icon) in the top-right corner of the navigation bar
+2. Theme instantly switches between Light and Dark mode
+3. Your preference is **saved automatically** to your browser
+4. Reloads and future visits will remember your choice
 
-### System Preference
+### System Preference Detection
 
-KlyrSignals automatically detects your OS theme setting on first visit:
-- If your system is in dark mode, KlyrSignals will start in dark mode
-- If your system is in light mode, KlyrSignals will start in light mode
+On your first visit, KlyrSignals automatically detects your OS theme setting:
+- **Dark mode OS** → KlyrSignals starts in dark mode
+- **Light mode OS** → KlyrSignals starts in light mode
 - You can always override this by clicking the theme toggle
+
+### Benefits of Dark Mode
+
+- **Reduces eye strain** in low-light conditions
+- **Saves battery** on OLED and AMOLED screens
+- **Personal preference** - choose what's most comfortable for you
+- **Modern aesthetic** - sleek, professional appearance
 
 ### What Changes in Dark Mode
 
-- **Background**: Dark slate colors (#0f172a) instead of light gray
-- **Cards/Surfaces**: Dark slate (#1e293b) instead of white
-- **Text**: Light text (#f1f5f9) instead of dark text
-- **Borders**: Subtle dark borders for better contrast
-- **Warnings/Alerts**: Darker background variants with adjusted text colors
+| Element | Light Mode | Dark Mode |
+|---------|-----------|-----------|
+| **Background** | Light gray (#f9fafb) | Dark slate (#0f172a) |
+| **Cards/Surfaces** | White (#ffffff) | Dark slate (#1e293b) |
+| **Text** | Dark gray (#111827) | Light gray (#f1f5f9) |
+| **Borders** | Light gray (#e5e7eb) | Dark border (#334155) |
+| **Warnings/Alerts** | Light backgrounds | Darker variants with adjusted text |
 
-All pages, charts, tables, and components are fully styled for dark mode.
+**All pages, charts, tables, and components are fully styled for dark mode.**
+
+### Tips
+
+- Theme preference is stored per-browser (syncs across tabs)
+- Works with system auto-switch (dusk/dawn) if your OS supports it
+- Charts and graphs automatically adjust colors for readability
 
 ---
 
-## WealthSimple Import
+## Import from WealthSimple (v1.5)
 
-KlyrSignals automatically detects and parses WealthSimple CSV exports, making it easy to import your portfolio from WealthSimple Trade.
+**For Canadian investors using WealthSimple Trade**, KlyrSignals provides automatic detection and parsing of WealthSimple CSV exports.
 
-### How to Import
+### How to Import from WealthSimple
 
-1. **Export from WealthSimple**:
-   - Log into WealthSimple Trade
-   - Go to your account activity or trade history
-   - Export as CSV
+**Step 1: Export from WealthSimple**
+1. Log into your WealthSimple Trade account
+2. Navigate to **Activity** or **Trade History**
+3. Click **Export** or **Download CSV**
+4. Save the CSV file to your computer
 
-2. **Import to KlyrSignals**:
-   - Go to the Import page
-   - Upload your CSV file or paste the contents
-   - KlyrSignals will auto-detect the format
-   - Preview your holdings
-   - Click "Import"
+**Step 2: Import to KlyrSignals**
+1. Go to the **Import** page in KlyrSignals
+2. Either:
+   - **Upload** the CSV file, or
+   - **Copy and paste** the CSV contents into the text area
+3. KlyrSignals will **auto-detect** the WealthSimple format
+4. You'll see a blue banner: "✓ Detected format: WealthSimple"
+5. **Preview** your holdings
+6. Click **"Import"** to add them to your portfolio
 
 ### Auto-Detection
 
-KlyrSignals automatically detects WealthSimple CSV format by looking for these columns:
-- Trade Date
-- Commission
-- Action (BUY/SELL)
+KlyrSignals automatically detects WealthSimple CSV format by looking for these signature columns:
+- **Trade Date**
+- **Commission**
+- **Action** (BUY/SELL)
 
-When detected, you'll see a blue banner confirming "Detected format: WealthSimple"
+When detected, you'll see a confirmation banner at the top of the preview.
 
 ### Supported Data
 
-**WealthSimple parser handles:**
-- ✅ BUY orders (adds holdings to your portfolio)
-- ✅ SELL orders (reduces or removes holdings)
-- ✅ Commission included in cost basis calculation
-- ✅ Multiple trades for same symbol (automatically averaged)
-- ✅ Partial SELL orders (reduces quantity without removing)
+**The WealthSimple parser handles:**
+
+- ✅ **BUY orders** - Adds holdings to your portfolio
+- ✅ **SELL orders** - Reduces or removes holdings
+- ✅ **Commission** - Included in cost basis calculation
+- ✅ **Multiple trades** for same symbol - Automatically averaged
+- ✅ **Partial SELL orders** - Reduces quantity without removing holding
+- ✅ **Stocks and ETFs** - All Canadian and US equities
 
 **Cost Basis Calculation:**
-- For BUY orders: Includes commission in the purchase price
-- For multiple purchases: Calculates weighted average cost
-- Formula: `(quantity × price + commission) / quantity`
+
+- **For BUY orders**: Commission is included in the purchase price
+  - Formula: `(quantity × price + commission) / quantity`
+- **For multiple purchases**: Weighted average cost is calculated
+  - Example below
 
 ### Example WealthSimple CSV
 
@@ -577,29 +700,75 @@ Trade Date,Symbol,Description,Quantity,Price,Commission,Net Amount,Action,Balanc
 
 ### Sample File
 
-A sample WealthSimple CSV is included at `/samples/wealthsimple-sample.csv` for testing.
+A sample WealthSimple CSV is included in the project at:
+`/frontend/public/samples/wealthsimple-sample.csv`
 
 ### Edge Cases Handled
 
-**Multiple BUY Orders:**
-If you buy the same stock multiple times, KlyrSignals calculates the average cost:
+**Multiple BUY Orders (Average Cost):**
+
+If you buy the same stock multiple times, KlyrSignals calculates the weighted average cost:
+
 ```
 Buy 10 AAPL @ $185.50 + $1.00 commission = $185.60/share
 Buy 5 AAPL @ $190.00 + $1.00 commission = $190.20/share
+
 Result: 15 AAPL @ $187.00/share (weighted average)
 ```
 
 **SELL Orders:**
-- SELL reduces your holding quantity
+
+- **SELL** reduces your holding quantity
 - If you sell more than you own, quantity goes to 0 (holding removed)
-- SELL orders don't affect average cost of remaining shares
+- SELL orders **don't affect** the average cost of remaining shares
 
 **Invalid Data:**
-- Rows with missing symbols or zero quantity are skipped
-- If format can't be detected, falls back to generic CSV parser
+
+- Rows with missing symbols or zero quantity are **skipped**
+- If format can't be detected, falls back to **generic CSV parser**
+- Error messages guide you to fix issues
+
+### Tips for WealthSimple Users
+
+- **Export regularly**: Monthly exports help track your portfolio evolution
+- **Include all accounts**: If you have multiple WealthSimple accounts (TFSA, RRSP, non-registered), export each and combine
+- **Verify commission**: WealthSimple charges $1-5 per trade; this is included in your cost basis
+- **Currency conversion**: WealthSimple shows CAD amounts; KlyrSignals uses the values as-is
 
 ---
 
-**Version:** 1.5.0  
+## Appendix
+
+### Supported CSV Formats
+
+KlyrSignals supports multiple CSV formats:
+
+1. **WealthSimple** - Canadian brokerage (auto-detected)
+2. **Generic** - Standard format (symbol, quantity, price)
+3. **Custom** - Flexible column mapping
+
+### Troubleshooting Import Issues
+
+**"No valid holdings found"**
+- Check that your CSV has a header row
+- Verify at least one data row exists
+- Ensure symbols are valid stock tickers
+
+**"Failed to parse CSV"**
+- Check for special characters or encoding issues
+- Try copying/pasting instead of file upload
+- Use the sample CSV as a template
+
+**WealthSimple format not detected**
+- Ensure your CSV includes "Trade Date", "Commission", and "Action" columns
+- Contact WealthSimple support if export format changed
+
+---
+
+**Version:** 1.6.0  
 **Last Updated:** 2026-03-01  
 **License:** MIT
+
+**Need Help?**
+- GitHub Issues: https://github.com/humac/klyrsignals/issues
+- Documentation: https://github.com/humac/klyrsignals/tree/main/docs
